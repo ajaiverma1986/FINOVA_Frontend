@@ -1,0 +1,52 @@
+.template-type-create-form .field small {
+  color: #64748b;
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.template-type-create-form textarea {
+  resize: vertical;
+}
+
+.template-type-preview {
+  align-items: flex-start;
+  background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+}
+
+.template-type-preview h2 {
+  margin: 0.35rem 0;
+}
+
+.template-type-preview p {
+  color: #475569;
+  margin: 0;
+  max-width: 52rem;
+}
+
+.template-type-status {
+  background: #e2e8f0;
+  border-radius: 999px;
+  color: #475569;
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.35rem 0.7rem;
+}
+
+.template-type-status.active {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+@media (max-width: 640px) {
+  .template-type-preview {
+    flex-direction: column;
+  }
+}

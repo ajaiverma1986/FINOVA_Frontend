@@ -1,0 +1,9 @@
+.template-type-list .template-type-delete {
+  color: #b91c1c;
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.template-type-list .template-type-delete:hover:not(:disabled) {
+  filter: brightness(0.96);
+}

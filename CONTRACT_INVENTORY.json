@@ -1,0 +1,36 @@
+{
+  "routes": 65,
+  "dashboardRoutes": 60,
+  "services": [
+    "ConfigService",
+    "ReportmanService",
+    "TransactionsService",
+    "UserMasterService",
+    "LoginServiceService",
+    "MasterDataService",
+    "FinoDMTService",
+    "SysMgrService"
+  ],
+  "operations": 100,
+  "methodsOmittedByInitialExtraction": [
+    "UserMasterService.upload",
+    "BaseserviceService.GetAPI",
+    "BaseserviceService.PostAPI",
+    "BaseserviceService.PostFileAPI",
+    "MasterDataService.GetDeviceInfo"
+  ],
+  "manualReplacements": {
+    "UserMasterService.upload": "src/services/catalog.ts: uploads.logo and src/core/api.ts multipart requests",
+    "BaseserviceService.GetAPI": "src/core/api.ts: request",
+    "BaseserviceService.PostAPI": "src/core/api.ts: request",
+    "BaseserviceService.PostFileAPI": "src/core/api.ts: request with FormData",
+    "MasterDataService.GetDeviceInfo": "src/services/device.ts: deviceRequest"
+  },
+  "additionalUploadOperations": 4,
+  "verification": {
+    "unitTestsPassed": 12,
+    "browserTestsPassed": 10,
+    "browserViewports": ["desktop", "mobile"],
+    "liveBackendParityVerified": false
+  }
+}

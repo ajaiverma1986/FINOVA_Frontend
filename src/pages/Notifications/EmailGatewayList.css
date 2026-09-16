@@ -1,0 +1,75 @@
+.email-gateway-list .actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.email-gateway-list > .actions {
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.email-gateway-list > .actions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.email-gateway-list td:last-child {
+  min-width: 290px;
+}
+
+.email-gateway-list .gateway-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.email-gateway-list .gateway-action-view {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.email-gateway-list .gateway-action-edit {
+  color: #0f766e;
+  background: #f0fdfa;
+  border-color: #99f6e4;
+}
+
+.email-gateway-list .gateway-action-delete {
+  color: #b91c1c;
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.email-gateway-list .gateway-action:hover:not(:disabled) {
+  box-shadow: 0 2px 6px rgb(15 23 42 / 15%);
+  filter: brightness(0.96);
+}
+
+.email-gateway-list .gateway-action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.email-gateway-list .gateway-action:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}

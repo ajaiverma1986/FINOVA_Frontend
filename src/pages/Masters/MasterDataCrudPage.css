@@ -1,0 +1,193 @@
+.master-data-page .page-heading {
+  align-items: center;
+}
+.master-data-page .master-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+}
+.master-data-page .master-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.master-data-page .master-table-wrap {
+  overflow-x: auto;
+  border: 2px solid #b9cbd6;
+  border-radius: 8px;
+}
+.master-data-page table {
+  border-collapse: collapse;
+}
+.master-data-page th {
+  border-right: 2px solid #c5d4dd;
+  border-bottom: 3px solid #aebfca;
+}
+.master-data-page td {
+  border-right: 2px solid #d8e2e8;
+  border-bottom: 2px solid #d8e2e8;
+}
+.master-data-page th:last-child,
+.master-data-page td:last-child {
+  border-right: 0;
+}
+.master-data-page .master-filter-row th {
+  padding: 8px;
+  background: #f8fbfd;
+}
+.master-data-page .master-filter-row input {
+  min-width: 110px;
+  height: 34px;
+  padding: 6px 9px;
+  border: 1px solid #aebfca;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+}
+.master-data-page .master-filter-row input:focus {
+  border-color: #087f78;
+  outline: 2px solid #cceee9;
+}
+.master-data-page .master-clear-filters {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.master-data-page tbody tr:last-child td {
+  border-bottom: 0;
+}
+.master-data-page .master-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.master-data-page .master-sort:hover,
+.master-data-page .master-sort:focus-visible {
+  background: transparent;
+  color: #087f78;
+  box-shadow: none;
+}
+.master-data-page .master-sort span {
+  color: #66808f;
+  font-size: 12px;
+}
+.master-data-page .master-pagination {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+.master-data-page .master-pagination > span {
+  margin-right: auto;
+}
+.master-data-page .master-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.master-data-page .master-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: 1px solid #cfe0ea;
+  border-radius: 9px;
+  background: #f8fbfd;
+  font-weight: 600;
+}
+.master-data-page .master-action.edit {
+  color: #087f78;
+  border-color: #9fe4dc;
+  background: #effcf9;
+}
+.master-data-page .master-action.delete {
+  color: #c62828;
+  border-color: #ffc5c5;
+  background: #fff5f5;
+}
+.master-data-page .master-action.view {
+  color: #1d5fd1;
+  border-color: #bdd5ff;
+  background: #f3f7ff;
+}
+.master-data-page .master-form {
+  max-width: 1100px;
+}
+.master-data-page .gateway-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 20px;
+}
+.master-data-page .gateway-section-heading > span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #e6f5f3;
+  color: #0f766e;
+  font-weight: 700;
+}
+.master-data-page .gateway-section-heading h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.master-data-page .gateway-section-heading p {
+  margin: 0;
+  color: #61788a;
+  font-size: 13px;
+}
+.master-data-page .master-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 28px;
+  margin-top: 26px;
+}
+.master-data-page .master-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+.master-data-page .master-field input {
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: #fbfdff;
+}
+.master-data-page .master-form-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 28px;
+  border-top: 1px solid #e1eaf0;
+}
+.master-data-page .master-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 24px 32px;
+  margin: 30px 0;
+}
+.master-data-page .master-details dt {
+  color: #61788a;
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.master-data-page .master-details dd {
+  margin: 6px 0 0;
+}
+@media (max-width: 700px) {
+  .master-data-page .master-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,52 @@
+.app-manager-create-dialog {
+  padding: 16px;
+}
+
+.app-manager-create-dialog .gateway-editor > button:first-child {
+  float: right;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 16px;
+  padding: 9px 14px;
+  border: 1px solid #b9d6d8;
+  border-radius: 8px;
+  background: #f0f9f9;
+  color: #176e74;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.app-manager-create-dialog .gateway-editor > button:first-child::before {
+  content: '\00d7';
+  font-size: 21px;
+  line-height: 1;
+}
+
+.app-manager-create-dialog .gateway-editor > button:first-child:hover {
+  background: #dceff0;
+  border-color: #176e74;
+}
+
+.app-manager-create-dialog .gateway-editor > button:first-child:focus-visible {
+  outline: 3px solid #176e74;
+  outline-offset: 3px;
+}
+
+.app-manager-create-dialog .gateway-editor > button:first-child:active {
+  background: #c7e4e6;
+}
+
+.app-manager-create-dialog .master-form,
+.app-manager-create-dialog .master-details {
+  clear: both;
+}
+
+.app-manager-create-dialog .master-details > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.app-manager-create-dialog .master-form > button[type='submit'] {
+  margin-top: 24px;
+}

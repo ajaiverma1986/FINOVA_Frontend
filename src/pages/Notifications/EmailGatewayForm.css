@@ -1,0 +1,130 @@
+.gateway-editor .gateway-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-weight: 600;
+}
+.gateway-editor h1 {
+  margin-bottom: 8px;
+}
+.gateway-subtitle {
+  color: #61788a;
+  margin: 0 0 28px;
+}
+.gateway-form {
+  max-width: 1100px;
+}
+.gateway-form .gateway-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 20px;
+}
+.gateway-section-heading > span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #e6f5f3;
+  color: #0f766e;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.gateway-form .gateway-section-heading h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.gateway-section-heading p {
+  margin: 0;
+  color: #61788a;
+  font-size: 13px;
+}
+.gateway-form .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 28px;
+}
+.gateway-form .field {
+  min-width: 0;
+  gap: 8px;
+  font-weight: 600;
+}
+.gateway-form input:not([type='checkbox']) {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: #fbfdff;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.gateway-form input:focus-visible {
+  outline: 2px solid #147d83;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #e6f5f3;
+}
+.gateway-form small {
+  display: block;
+  color: #61788a;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.gateway-password {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.gateway-password input {
+  flex: 1;
+}
+.gateway-password button {
+  flex-shrink: 0;
+  min-width: 68px;
+}
+.gateway-ssl {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: #f0faf8;
+  border: 1px solid #cae8e2;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.gateway-ssl input {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: #147d83;
+  cursor: pointer;
+}
+.gateway-ssl small {
+  margin-top: 4px;
+}
+.gateway-form .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 28px;
+  border-top: 1px solid #e1eaf0;
+}
+.gateway-form .actions > * {
+  min-height: 44px;
+  justify-content: center;
+  padding: 10px 22px;
+  box-sizing: border-box;
+}
+@media (max-width: 700px) {
+  .gateway-form .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gateway-form .actions > * {
+    flex: 1;
+  }
+}

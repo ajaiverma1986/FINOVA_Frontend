@@ -1,0 +1,63 @@
+.template-list .template-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.template-list .template-action {
+  border-radius: 6px;
+  font-size: 0.82rem;
+  min-width: 4.25rem;
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  transition:
+    filter 140ms ease,
+    transform 140ms ease;
+}
+
+.template-list .template-action:hover:not(:disabled) {
+  filter: brightness(0.96);
+  transform: translateY(-1px);
+}
+
+.template-list .template-action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.template-list .template-action-view {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.template-list .template-action-edit {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  color: #0f766e;
+}
+
+.template-list .template-action-delete {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #b91c1c;
+}
+
+.template-list .template-status {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+}
+
+.template-list .template-status-active {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.template-list .template-status-inactive {
+  background: #e2e8f0;
+  color: #475569;
+}
