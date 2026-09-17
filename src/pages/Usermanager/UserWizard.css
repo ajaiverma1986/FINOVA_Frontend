@@ -1,0 +1,111 @@
+.user-wizard-progress {
+  clear: both;
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 16px 0;
+  list-style: none;
+  border-bottom: 1px solid #e1eaf0;
+}
+.master-data-page .user-wizard-progress [role='tab'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #526878;
+  font-size: 13px;
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+}
+.master-data-page .user-wizard-progress [role='tab']:hover:not(:disabled) {
+  background: #e0f2f1;
+  border-color: #8ac6c8;
+}
+.master-data-page .user-wizard-progress [role='tab'][aria-selected='true'] {
+  background: #13777e;
+  color: white;
+  font-weight: 600;
+}
+.master-data-page .user-wizard-progress [role='tab']:focus-visible {
+  outline: 3px solid #13777e;
+  outline-offset: 2px;
+}
+.master-data-page .user-wizard-progress [role='tab']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.user-tab-number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgb(19 119 126 / 10%);
+  font-size: 12px;
+}
+[aria-selected='true'] .user-tab-number {
+  background: rgb(255 255 255 / 20%);
+}
+.user-step-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.user-wizard-hint {
+  color: #526878;
+  font-size: 13px;
+}
+.address-save-actions {
+  margin-top: 24px;
+}
+.address-save-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.master-data-page .address-grid-actions .master-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition:
+    background-color 150ms,
+    box-shadow 150ms,
+    transform 150ms;
+}
+.master-data-page .address-grid-actions .edit:hover:not(:disabled) {
+  background: #dceff0;
+  box-shadow: 0 2px 6px rgb(19 119 126 / 18%);
+  transform: translateY(-1px);
+}
+.master-data-page .address-grid-actions .delete:hover:not(:disabled) {
+  background: #fee2e2;
+  box-shadow: 0 2px 6px rgb(185 28 28 / 18%);
+  transform: translateY(-1px);
+}
+.master-data-page .address-grid-actions .master-action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.master-data-page .address-grid-actions .master-action:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.master-data-page .address-grid-actions .master-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  .master-data-page .address-grid-actions .master-action {
+    transition: none;
+    transform: none;
+  }
+}

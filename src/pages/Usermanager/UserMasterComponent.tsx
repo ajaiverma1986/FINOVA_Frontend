@@ -1,9 +1,12 @@
+import UserDetailStep from './UserDetailStep';
+import { detailSteps, recordId } from './userWizardData';
+import './UserWizard.css';
 import CreatePanelDialog from '../AppManager/CreatePanelDialog';
 import UserAccountActions from './UserAccountActions';
 import { MasterDataService } from '../../services/MasterDataService';
 import { OrgMgrService } from '../../services/OrgMgrService';
 import { exportToExcel } from '../../core/exportToExcel';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -105,6 +108,10 @@ export default function UserMasterComponent() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState<unknown>();
   const [saving, setSaving] = useState(false);
+  const [step, setStep] = useState(0);
+  const [wizardNotice, setWizardNotice] = useState('');
+  const created = useRef(false);
+  const submitting = useRef(false);
   const lookupEnabled = mode === 'create' || mode === 'edit';
   const userTypes = useQuery({
     queryKey: ['user-master-lookups', 'active-user-types'],
@@ -179,6 +186,11 @@ export default function UserMasterComponent() {
     setMode(null);
     setSelectedId(null);
     setForm(emptyForm);
+    setStep(0);
+    setWizardNotice('');
+    created.current = false;
+    void cache.invalidateQueries({ queryKey: ['user-master'] });
+    cache.removeQueries({ queryKey: ['user-wizard'] });
   }
   const list = useQuery({
     queryKey: ['user-master', 'list', activeOnly, search],
@@ -202,6 +214,7 @@ export default function UserMasterComponent() {
   const detail = useQuery({
     queryKey: ['user-master', 'detail', selectedId],
     enabled: selectedId !== null && (mode === 'edit' || mode === 'view'),
+    refetchOnWindowFocus: false,
     queryFn: async ({ signal }) =>
       records((await UserMgrService.getUserMasterById(selectedId!, signal)).Result)[0],
     retry: false,
@@ -217,7 +230,6 @@ export default function UserMasterComponent() {
     onError: setError,
   });
   useEffect(() => {
-    if (mode === 'create') setForm(emptyForm);
     if (mode === 'edit' && detail.data) setForm(toForm(detail.data));
   }, [detail.data, mode]);
   useEffect(() => setPage(1), [activeOnly, list.data]);
@@ -255,8 +267,12 @@ export default function UserMasterComponent() {
   const pagedRows = visibleRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   function open(nextMode: Exclude<Mode, null>, row?: Row) {
+    setWizardNotice('');
     setError(undefined);
     setMessage('');
+    setStep(0);
+    created.current = false;
+    if (nextMode === 'create') setForm(emptyForm);
     setMode(nextMode);
     const id = row ? rowId(row) : null;
     setSelectedId(id || null);
@@ -267,36 +283,78 @@ export default function UserMasterComponent() {
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (saving || !lookupsReady) return;
+    if (submitting.current || !lookupsReady) return;
+    submitting.current = true;
     setSaving(true);
     setError(undefined);
     try {
       const { UserMasterID, Password, IsPasswordExpired, UserId, IsLocked, LockedTill, ...shared } =
         form;
-      if (mode === 'create') {
-        await UserMgrService.createUserMaster({
-          ...shared,
-          Status: 8,
-          Password,
-          IsPasswordExpired: false,
-          UserId: 0,
-          IsLocked: false,
-          LockedTill: null,
-        });
+      let id = UserMasterID;
+      if (id) {
+        await UserMgrService.updateUserMaster({ ...shared, UserMasterID: id });
       } else {
-        await UserMgrService.updateUserMaster({ ...shared, UserMasterID, Status: 8 });
+        if (!created.current) {
+          const existing = records(
+            (await UserMgrService.getUserMasterByUserName(form.UserName ?? '')).Result,
+          ).filter(
+            (row) =>
+              rowId(row) &&
+              String(value(row, 'UserName')).toLowerCase() === String(form.UserName).toLowerCase(),
+          );
+          if (existing.length > 1)
+            throw new Error(
+              'More than one user matches this name. Open the intended user using Edit.',
+            );
+          if (existing.length === 1) {
+            const existingId = rowId(existing[0]);
+            const full = records((await UserMgrService.getUserMasterById(existingId)).Result)[0];
+            if (!full)
+              throw new Error('The existing user details could not be loaded. Please retry.');
+            setForm(toForm({ ...full, UserMasterID: existingId }));
+            setWizardNotice(
+              'This user already exists. Details have been loaded; review them and click Next to update.',
+            );
+            return;
+          }
+          if (!Password) throw new Error('Enter a password for the new user.');
+          const response = await UserMgrService.createUserMaster({
+            ...shared,
+            Status: 8,
+            Password,
+            IsPasswordExpired: false,
+            UserId: 0,
+            IsLocked: false,
+            LockedTill: null,
+          });
+          created.current = true;
+          id = recordId(response.Result, 'UserMasterID');
+        }
+        if (!id) {
+          const found = records(
+            (await UserMgrService.getUserMasterByUserName(form.UserName ?? '')).Result,
+          ).filter(
+            (row) =>
+              String(value(row, 'UserName')).toLowerCase() === String(form.UserName).toLowerCase(),
+          );
+          if (found.length === 1) id = rowId(found[0]);
+        }
+        if (!id)
+          throw new Error(
+            'User saved, but the user ID could not be loaded. Click Next to retry without creating another user.',
+          );
+        setForm((current) => ({ ...current, UserMasterID: id, Password: '' }));
       }
-      setMessage(mode === 'create' ? 'User created.' : 'User updated.');
-      setMode(null);
-      setSelectedId(null);
-      setForm(emptyForm);
-      await cache.invalidateQueries({ queryKey: ['user-master'] });
+      setStep(1);
+      setWizardNotice('');
     } catch (caught) {
       setError(caught);
     } finally {
+      submitting.current = false;
       setSaving(false);
     }
   }
+
   if (list.isPending) return <Loading />;
   return (
     <section className="card master-data-page">
@@ -566,114 +624,215 @@ export default function UserMasterComponent() {
             <h2>
               {mode === 'create' ? 'Create user' : mode === 'edit' ? 'Update user' : 'User details'}
             </h2>
-            {detail.isError && mode !== 'create' ? (
-              <ErrorState error={detail.error} retry={() => void detail.refetch()} />
-            ) : detail.isPending && mode !== 'create' ? (
-              <Loading />
-            ) : mode === 'view' ? (
-              <dl className="master-details">
-                {Object.entries(detail.data ?? form)
-                  .filter(([key]) => !/password|token|salt/i.test(key))
-                  .map(([key, item]) => (
-                    <div key={key}>
-                      <dt>{key}</dt>
-                      <dd>{String(item ?? '—')}</dd>
-                    </div>
+            {mode !== 'view' && (
+              <>
+                <div className="user-wizard-progress" role="tablist" aria-label="User setup steps">
+                  {['User', ...detailSteps.map((item) => item.title)].map((title, index) => (
+                    <button
+                      key={title}
+                      type="button"
+                      role="tab"
+                      id={`user-setup-tab-${index}`}
+                      aria-selected={step === index}
+                      aria-controls="user-setup-panel"
+                      tabIndex={step === index ? 0 : -1}
+                      disabled={saving || (index > 0 && !form.UserMasterID)}
+                      title={
+                        index > 0 && !form.UserMasterID
+                          ? 'Save the user first to open this tab'
+                          : title
+                      }
+                      onClick={() => setStep(index)}
+                      onKeyDown={(event) => {
+                        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                        event.preventDefault();
+                        const tabs = Array.from(
+                          event.currentTarget.parentElement!.querySelectorAll<HTMLButtonElement>(
+                            '[role="tab"]:not(:disabled)',
+                          ),
+                        );
+                        const current = tabs.indexOf(event.currentTarget);
+                        const next =
+                          event.key === 'Home'
+                            ? 0
+                            : event.key === 'End'
+                              ? tabs.length - 1
+                              : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) %
+                                tabs.length;
+                        tabs[next]?.focus();
+                        tabs[next]?.click();
+                      }}
+                    >
+                      <span className="user-tab-number" aria-hidden="true">
+                        {index + 1}
+                      </span>
+                      {title}
+                    </button>
                   ))}
-              </dl>
-            ) : (
-              <form className="master-form" onSubmit={submit}>
-                {[userTypes, organizations, genders].map(
-                  (lookup, index) =>
-                    lookup.isError && (
-                      <ErrorState
-                        key={index}
-                        error={lookup.error}
-                        retry={() => void lookup.refetch()}
-                      />
-                    ),
-                )}
-                {error != null && <ErrorState error={error} />}
-                <div className="master-form-grid">
-                  {lookupField('UserTypeId', 'User type', 'UserTypeName')}
-                  {lookupField('OrganizationID', 'Organization', 'OrganizationName')}
-                  <label className="master-field">
-                    User Name
-                    <input
-                      type="text"
-                      required
-                      value={form.UserName ?? ''}
-                      onChange={(event) => updateField('UserName', event.target.value)}
-                    />
-                  </label>
-                  {mode === 'create' && (
-                    <label className="master-field">
-                      Password
-                      <input
-                        type="password"
-                        required
-                        autoComplete="new-password"
-                        value={form.Password ?? ''}
-                        onChange={(event) => updateField('Password', event.target.value)}
-                      />
-                    </label>
-                  )}
-                  <label className="master-field">
-                    Title
-                    <input
-                      type="text"
-                      value={form.Title ?? ''}
-                      onChange={(event) => updateField('Title', event.target.value)}
-                    />
-                  </label>
-                  <label className="master-field">
-                    First Name
-                    <input
-                      type="text"
-                      value={form.FirstName ?? ''}
-                      onChange={(event) => updateField('FirstName', event.target.value)}
-                    />
-                  </label>
-                  <label className="master-field">
-                    Middle Name
-                    <input
-                      type="text"
-                      value={form.MiddleName ?? ''}
-                      onChange={(event) => updateField('MiddleName', event.target.value)}
-                    />
-                  </label>
-                  <label className="master-field">
-                    Last Name
-                    <input
-                      type="text"
-                      value={form.LastName ?? ''}
-                      onChange={(event) => updateField('LastName', event.target.value)}
-                    />
-                  </label>
-                  {lookupField('GenderID', 'Gender', 'GenderName')}
-
-                  <label className="master-field">
-                    Email Id
-                    <input
-                      type="email"
-                      value={form.EmailId ?? ''}
-                      onChange={(event) => updateField('EmailId', event.target.value)}
-                    />
-                  </label>
-                  <label className="master-field">
-                    Mobile No
-                    <input
-                      type="text"
-                      value={form.MobileNo ?? ''}
-                      onChange={(event) => updateField('MobileNo', event.target.value)}
-                    />
-                  </label>
                 </div>
-                <button type="submit" disabled={saving || !lookupsReady}>
-                  {mode === 'create' ? 'Create user' : 'Update user'}
-                </button>
-              </form>
+                {wizardNotice && (
+                  <p className="notice" role="status">
+                    {wizardNotice}
+                  </p>
+                )}
+                <p className="user-wizard-hint">
+                  Step {step + 1} of 6. Next saves this step. Switch tabs or use Previous to keep
+                  editing without saving.
+                  {!form.UserMasterID && ' Save the user first to unlock the other tabs.'}
+                </p>
+              </>
             )}
+            <div
+              id="user-setup-panel"
+              role={mode !== 'view' ? 'tabpanel' : undefined}
+              aria-labelledby={mode !== 'view' ? `user-setup-tab-${step}` : undefined}
+            >
+              {step === 0 &&
+                (detail.isError && mode !== 'create' ? (
+                  <ErrorState error={detail.error} retry={() => void detail.refetch()} />
+                ) : detail.isPending && mode !== 'create' ? (
+                  <Loading />
+                ) : mode === 'view' ? (
+                  <dl className="master-details">
+                    {Object.entries(detail.data ?? form)
+                      .filter(([key]) => !/password|token|salt/i.test(key))
+                      .map(([key, item]) => (
+                        <div key={key}>
+                          <dt>{key}</dt>
+                          <dd>{String(item ?? '—')}</dd>
+                        </div>
+                      ))}
+                  </dl>
+                ) : (
+                  <form className="master-form" onSubmit={submit}>
+                    {[userTypes, organizations, genders].map(
+                      (lookup, index) =>
+                        lookup.isError && (
+                          <ErrorState
+                            key={index}
+                            error={lookup.error}
+                            retry={() => void lookup.refetch()}
+                          />
+                        ),
+                    )}
+                    {error != null && <ErrorState error={error} />}
+                    <fieldset
+                      className="user-step-fields"
+                      disabled={saving || (created.current && !form.UserMasterID)}
+                    >
+                      <div className="master-form-grid">
+                        {lookupField('UserTypeId', 'User type', 'UserTypeName')}
+                        {lookupField('OrganizationID', 'Organization', 'OrganizationName')}
+                        <label className="master-field">
+                          User Name
+                          <input
+                            type="text"
+                            required
+                            value={form.UserName ?? ''}
+                            onChange={(event) => updateField('UserName', event.target.value)}
+                          />
+                        </label>
+                        {!form.UserMasterID && !created.current && (
+                          <label className="master-field">
+                            Password
+                            <input
+                              type="password"
+                              autoComplete="new-password"
+                              value={form.Password ?? ''}
+                              onChange={(event) => updateField('Password', event.target.value)}
+                            />
+                          </label>
+                        )}
+                        <label className="master-field">
+                          Title
+                          <input
+                            type="text"
+                            value={form.Title ?? ''}
+                            onChange={(event) => updateField('Title', event.target.value)}
+                          />
+                        </label>
+                        <label className="master-field">
+                          First Name
+                          <input
+                            type="text"
+                            value={form.FirstName ?? ''}
+                            onChange={(event) => updateField('FirstName', event.target.value)}
+                          />
+                        </label>
+                        <label className="master-field">
+                          Middle Name
+                          <input
+                            type="text"
+                            value={form.MiddleName ?? ''}
+                            onChange={(event) => updateField('MiddleName', event.target.value)}
+                          />
+                        </label>
+                        <label className="master-field">
+                          Last Name
+                          <input
+                            type="text"
+                            value={form.LastName ?? ''}
+                            onChange={(event) => updateField('LastName', event.target.value)}
+                          />
+                        </label>
+                        {lookupField('GenderID', 'Gender', 'GenderName')}
+
+                        <label className="master-field">
+                          Email Id
+                          <input
+                            type="email"
+                            value={form.EmailId ?? ''}
+                            onChange={(event) => updateField('EmailId', event.target.value)}
+                          />
+                        </label>
+                        <label className="master-field">
+                          Mobile No
+                          <input
+                            type="text"
+                            value={form.MobileNo ?? ''}
+                            onChange={(event) => updateField('MobileNo', event.target.value)}
+                          />
+                        </label>
+                      </div>
+                    </fieldset>
+                    <div className="master-form-actions">
+                      <button type="button" className="secondary" disabled>
+                        Previous
+                      </button>
+                      <button type="submit" disabled={saving || !lookupsReady}>
+                        {saving ? 'Saving...' : 'Next'}
+                      </button>
+                    </div>
+                  </form>
+                ))}
+              {mode !== 'view' &&
+                form.UserMasterID > 0 &&
+                detailSteps.map((item, index) => (
+                  <UserDetailStep
+                    key={item.id}
+                    index={index}
+                    userId={form.UserMasterID}
+                    userTypeId={form.UserTypeId}
+                    active={step === index + 1}
+                    onSaving={setSaving}
+                    onPrevious={() => setStep(step - 1)}
+                    onNext={() => {
+                      if (index === detailSteps.length - 1) {
+                        setMessage(
+                          mode === 'create' ? 'User setup completed.' : 'User details updated.',
+                        );
+                        setMode(null);
+                        setSelectedId(null);
+                        setForm(emptyForm);
+                        setStep(0);
+                        created.current = false;
+                        void cache.invalidateQueries({ queryKey: ['user-master'] });
+                        void cache.removeQueries({ queryKey: ['user-wizard'] });
+                      } else setStep(step + 1);
+                    }}
+                  />
+                ))}
+            </div>
           </section>
         </CreatePanelDialog>
       )}
