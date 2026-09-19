@@ -187,18 +187,10 @@ it('overrides an inactive address status on update', async () => {
   );
 });
 
-it('uploads a KYC file and saves its returned metadata internally', async () => {
+it('stages a KYC file and saves it through the KYC API', async () => {
   const { UserMgrService } = await import('../../services/UserMgrservice');
   vi.spyOn(detailSteps[1], 'get').mockResolvedValue({ Result: [] });
   mockLookup(1);
-  const uploaded = {
-    FileUrl: '7_unique.pdf',
-    MediaExtension: '.pdf',
-    MediaContentType: 'application/pdf',
-  };
-  const upload = vi
-    .spyOn(UserMgrService, 'uploadUserKycFile')
-    .mockResolvedValue({ Result: uploaded });
   const save = vi.spyOn(detailSteps[1], 'save').mockResolvedValue({ Result: { UserKYCID: 12 } });
   setup(1);
   const input = await screen.findByLabelText(/Upload document/);
@@ -207,10 +199,95 @@ it('uploads a KYC file and saves its returned metadata internally', async () => 
   expect(screen.queryByLabelText('Content type')).toBeNull();
   const file = new File(['%PDF-1.4'], 'pan.pdf', { type: 'application/pdf' });
   fireEvent.change(input, { target: { files: [file] } });
-  await screen.findByText('Uploaded document: 7_unique.pdf');
-  expect(upload).toHaveBeenCalledWith(7, file);
+  await screen.findByText('Selected document: pan.pdf');
   fireEvent.submit(screen.getByRole('form', { name: 'KYC' }));
-  await waitFor(() => expect(save).toHaveBeenCalledWith(expect.objectContaining(uploaded), 7, 0));
+  await waitFor(() =>
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ File: file }), 7, 0),
+  );
+});
+
+it('uploads bank documents through create and update and clears the file after saving', async () => {
+  const { UserMgrService } = await import('../../services/UserMgrservice');
+  vi.spyOn(detailSteps[2], 'get').mockResolvedValue({ Result: [] });
+  mockLookup(2);
+  const create = vi
+    .spyOn(UserMgrService, 'createUserBankAccount')
+    .mockResolvedValue({ Result: { OriginatorAccountID: 12 } });
+  const update = vi
+    .spyOn(UserMgrService, 'updateUserBankAccount')
+    .mockResolvedValue({ Result: {} });
+  setup(2);
+  const input = await screen.findByLabelText(/Upload document/);
+  expect(screen.queryByLabelText('Document filename')).toBeNull();
+  const file = new File(['bank document'], 'bank.pdf', { type: 'application/pdf' });
+  fireEvent.change(input, { target: { files: [file] } });
+  fireEvent.submit(screen.getByRole('form', { name: 'Bank account' }));
+  await screen.findByText('Current document: bank.pdf');
+  expect(create).toHaveBeenCalledWith(expect.objectContaining({ UserMasterID: 7, File: file }));
+  fireEvent.submit(screen.getByRole('form', { name: 'Bank account' }));
+  await waitFor(() =>
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ OriginatorAccountID: 12, File: null }),
+    ),
+  );
+  const replacement = new File(['replacement document'], 'replacement.pdf', {
+    type: 'application/pdf',
+  });
+  fireEvent.change(input, { target: { files: [replacement] } });
+  fireEvent.submit(screen.getByRole('form', { name: 'Bank account' }));
+  await screen.findByText('Current document: replacement.pdf');
+  expect(update).toHaveBeenLastCalledWith(
+    expect.objectContaining({ OriginatorAccountID: 12, File: replacement }),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Add bank account' }));
+  expect(screen.queryByText('Current document: replacement.pdf')).toBeNull();
+});
+
+it.each([1, 2])('opens the saved document from step %i in the reusable viewer', async (index) => {
+  const config = detailSteps[index];
+  vi.spyOn(config, 'get').mockResolvedValue({
+    Result: [
+      {
+        ...config.defaults,
+        [config.id]: 19,
+        ...(index === 1
+          ? { FileUrl: '/uploads/kyc/document.jpg', MediaContentType: 'image/jpeg' }
+          : { Filename: '/uploads/bank/document.jpg' }),
+      },
+    ],
+  });
+  mockLookup(index);
+  setup(index);
+  fireEvent.click(await screen.findByRole('button', { name: 'View document' }));
+  const name = index === 1 ? 'KYC document' : 'Bank account document';
+  expect(await screen.findByRole('dialog', { name })).toBeDefined();
+  expect(screen.getByRole('img', { name }).getAttribute('src')).toContain(
+    index === 1 ? '/uploads/kyc/document.jpg' : '/uploads/bank/document.jpg',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Close document' }));
+  await waitFor(() => expect(screen.queryByRole('dialog', { name })).toBeNull());
+  expect(screen.getByRole('form', { name: config.title })).toBeDefined();
+});
+
+it('uses the server URL to preview a newly uploaded bank document', async () => {
+  const { UserMgrService } = await import('../../services/UserMgrservice');
+  vi.spyOn(detailSteps[2], 'get')
+    .mockResolvedValueOnce({ Result: [] })
+    .mockResolvedValue({
+      Result: [{ OriginatorAccountID: 12, FileUrl: '/uploads/bank/generated.jpg' }],
+    });
+  mockLookup(2);
+  vi.spyOn(UserMgrService, 'createUserBankAccount').mockResolvedValue({
+    Result: { OriginatorAccountID: 12 },
+  });
+  setup(2);
+  const file = new File(['image'], 'original.jpg', { type: 'image/jpeg' });
+  fireEvent.change(await screen.findByLabelText(/Upload document/), { target: { files: [file] } });
+  fireEvent.submit(screen.getByRole('form', { name: 'Bank account' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'View document' }));
+  expect(screen.getByRole('img', { name: 'Bank account document' }).getAttribute('src')).toContain(
+    '/uploads/bank/generated.jpg',
+  );
 });
 
 it('masks all identifiers and the record label while sending full values', async () => {

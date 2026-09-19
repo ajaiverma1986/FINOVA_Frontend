@@ -119,5 +119,85 @@ it.each([
   const signal = new AbortController().signal;
   const call = UserMgrService[name] as (...args: unknown[]) => unknown;
   await call(body, signal);
-  expect(request).toHaveBeenCalledWith(`/UserMgr/${endpoint}`, { method: 'POST', body, signal });
+  if (
+    name === 'createUserKyc' ||
+    name === 'updateUserKyc' ||
+    name === 'createUserBankAccount' ||
+    name === 'updateUserBankAccount'
+  ) {
+    expect(request).toHaveBeenCalledWith(
+      `/UserMgr/${endpoint}`,
+      expect.objectContaining({ method: 'POST', body: expect.any(FormData), signal }),
+    );
+  } else {
+    expect(request).toHaveBeenCalledWith(`/UserMgr/${endpoint}`, { method: 'POST', body, signal });
+  }
+});
+
+it('sends bank account files and IDs using the Swagger multipart fields', async () => {
+  const file = new File(['document'], 'bank.pdf', { type: 'application/pdf' });
+  const body = {
+    UserMasterID: 7,
+    BankId: 2,
+    AccountName: 'Alex',
+    AccountNo: '001234',
+    Ifsccode: 'ABCD0000001',
+    File: file,
+    Status: 8,
+  };
+  await UserMgrService.createUserBankAccount(body);
+  const createBody = vi.mocked(request).mock.calls[0][1]?.body as FormData;
+  expect(Object.fromEntries(createBody.entries())).toEqual({
+    UserMasterID: '7',
+    BankId: '2',
+    AccountName: 'Alex',
+    AccountNo: '001234',
+    Ifsccode: 'ABCD0000001',
+    File: file,
+    Status: '8',
+  });
+  await UserMgrService.updateUserBankAccount({ ...body, OriginatorAccountID: 12 });
+  const updateBody = vi.mocked(request).mock.calls[1][1]?.body as FormData;
+  expect(updateBody.get('OriginatorAccountID')).toBe('12');
+  expect(updateBody.get('File')).toBe(file);
+  await UserMgrService.updateUserBankAccount({ ...body, OriginatorAccountID: 12, File: null });
+  const withoutFile = vi.mocked(request).mock.calls[2][1]?.body as FormData;
+  expect(withoutFile.has('File')).toBe(false);
+});
+
+it('serializes KYC create and update requests using the Swagger multipart fields', async () => {
+  const file = new File(['document'], 'kyc.pdf', { type: 'application/pdf' });
+  await UserMgrService.createUserKyc({
+    UserMasterId: 7,
+    KycID: 30,
+    DocumentNo: 'ABC123',
+    File: file,
+    FileUrl: null,
+    MediaExtension: null,
+    MediaContentType: null,
+    RejectedReason: null,
+    Status: 8,
+  });
+  const createBody = vi.mocked(request).mock.calls[0][1]?.body as FormData;
+  expect(createBody.get('UserMasterId')).toBe('7');
+  expect(createBody.get('KycID')).toBe('30');
+  expect(createBody.get('DocumentNo')).toBe('ABC123');
+  expect(createBody.get('File')).toBe(file);
+
+  vi.clearAllMocks();
+  await UserMgrService.updateUserKyc({
+    UserKYCID: 12,
+    UserMasterId: 7,
+    KycID: 30,
+    DocumentNo: 'ABC123',
+    File: file,
+    FileUrl: null,
+    MediaExtension: null,
+    MediaContentType: null,
+    RejectedReason: null,
+    Status: 8,
+  });
+  const updateBody = vi.mocked(request).mock.calls[0][1]?.body as FormData;
+  expect(updateBody.get('UserKycMasterId')).toBe('12');
+  expect(updateBody.get('File')).toBe(file);
 });

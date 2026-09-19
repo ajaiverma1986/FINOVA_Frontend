@@ -255,7 +255,7 @@ export function DashboardLayoutNavigationLinks() {
         </Box>
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, ml: 0 }}>
+      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, ml: 0 }}>
         <AppBar
           position="sticky"
           elevation={0}

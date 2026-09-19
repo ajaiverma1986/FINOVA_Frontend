@@ -7,6 +7,8 @@ import PincodeDataSelect from './PincodeDataSelect';
 import { UserMgrService } from '../../services/UserMgrservice';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import FileViewer from '../../components/FileViewer';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import { MasterDataService } from '../../services/MasterDataService';
 
@@ -34,6 +36,11 @@ export default function UserDetailStep({
   const gridFields = config.fields.filter((field) => field.key !== 'PincodeDataId');
   const [form, setForm] = useState<Row>({ ...config.defaults });
   const [items, setItems] = useState<Row[]>([]);
+  const [viewDocument, setViewDocument] = useState<{
+    url: string;
+    name: string;
+    contentType: string;
+  } | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<unknown>();
@@ -112,7 +119,11 @@ export default function UserDetailStep({
   function populate(row?: Row) {
     setSelectedCompany(row ? companyId(row) || null : 0);
     const next = { ...config.defaults };
-    for (const key of [...Object.keys(next), config.id]) {
+    for (const key of [
+      ...Object.keys(next),
+      config.id,
+      ...(index === 2 ? ['FileUrl', 'MediaContentType'] : []),
+    ]) {
       const value = row && fieldValue(row, key);
       if (value !== undefined) next[key] = value;
     }
@@ -157,9 +168,9 @@ export default function UserDetailStep({
             !items.some((old) => recordId(old, config.id) === recordId(row, config.id)),
         );
         const matching = candidates.filter((row) =>
-          config.fields.every(
-            ({ key }) => String(fieldValue(row, key) ?? '') === String(form[key] ?? ''),
-          ),
+          config.fields
+            .filter(({ key }) => index !== 2 || key !== 'Filename')
+            .every(({ key }) => String(fieldValue(row, key) ?? '') === String(form[key] ?? '')),
         );
         id = recordId(
           matching.length === 1 ? matching[0] : candidates.length === 1 ? candidates[0] : undefined,
@@ -170,12 +181,36 @@ export default function UserDetailStep({
             'The record was saved, but its ID could not be loaded. Retry to retrieve it without creating a duplicate.',
           );
       }
-      const saved = {
+      let saved: Row = {
         ...form,
         [config.id]: id,
         ...(index === 0 ? { Status: 1 } : {}),
         ...(index === 1 ? { CompanyTypeId: companyType } : {}),
+        ...(index === 2
+          ? { File: null, Filename: form.File instanceof File ? form.File.name : form.Filename }
+          : {}),
       };
+      if ((index === 1 || index === 2) && form.File instanceof File) {
+        saved = { ...saved, File: null, FileUrl: '', MediaContentType: form.File.type };
+        // Fetch the server-generated path, which can differ from the uploaded filename.
+        try {
+          const refreshed = rows((await config.get(userId)).Result);
+          const stored = refreshed.find((row) => recordId(row, config.id) === id);
+          if (stored) {
+            saved = { ...saved, File: null };
+            for (const key of ['FileUrl', 'Filename', 'MediaExtension', 'MediaContentType']) {
+              const value = fieldValue(stored, key);
+              if (value !== undefined) saved[key] = value;
+            }
+          }
+        } catch {
+          setError(
+            new Error(
+              'The document was saved, but its preview could not be refreshed. Reopen this user to view it.',
+            ),
+          );
+        }
+      }
       setForm(saved);
       setItems((current) => [...current.filter((row) => recordId(row, config.id) !== id), saved]);
       pendingCreate.current = false;
@@ -200,12 +235,7 @@ export default function UserDetailStep({
     setSaving(true);
     onSaving(true);
     try {
-      const response = await UserMgrService.uploadUserKycFile(userId, file);
-      const uploaded = response.Result;
-      if (!uploaded?.FileUrl || !uploaded.MediaExtension || !uploaded.MediaContentType) {
-        throw new Error('The upload did not return document details. Please retry.');
-      }
-      setForm((current) => ({ ...current, ...uploaded }));
+      setForm((current) => ({ ...current, File: file }));
     } catch (caught) {
       setError(caught);
     } finally {
@@ -333,8 +363,9 @@ export default function UserDetailStep({
             {config.fields
               .filter(
                 (field) =>
-                  index !== 1 ||
-                  !['FileUrl', 'MediaExtension', 'MediaContentType'].includes(field.key),
+                  (index !== 1 ||
+                    !['FileUrl', 'MediaExtension', 'MediaContentType'].includes(field.key)) &&
+                  (index !== 2 || field.key !== 'Filename'),
               )
               .map((field) => (
                 <label className="master-field" key={field.key}>
@@ -434,7 +465,7 @@ export default function UserDetailStep({
                   )}
                 </label>
               ))}
-            {index === 1 && (
+            {(index === 1 || index === 2) && (
               <label className="master-field">
                 Upload document
                 <input
@@ -447,10 +478,13 @@ export default function UserDetailStep({
                   }}
                 />
                 <small>PDF, JPG or PNG, up to 10 MB.</small>
+                {index === 2 && !!form.Filename && (
+                  <small>Current document: {String(form.Filename)}</small>
+                )}
                 {uploading ? (
-                  <span role="status">Uploading document...</span>
+                  <span role="status">Document selected.</span>
                 ) : (
-                  !!form.FileUrl && <small>Uploaded document: {String(form.FileUrl)}</small>
+                  form.File instanceof File && <small>Selected document: {form.File.name}</small>
                 )}
               </label>
             )}
@@ -518,6 +552,10 @@ export default function UserDetailStep({
                 )}
                 {items.map((row) => {
                   const id = recordId(row, config.id);
+                  const filename = String(fieldValue(row, 'Filename') || '');
+                  const documentUrl = String(
+                    fieldValue(row, 'FileUrl') || (filename.includes('/') ? filename : ''),
+                  );
                   return (
                     <tr key={id}>
                       {gridFields.map((field) => (
@@ -536,6 +574,23 @@ export default function UserDetailStep({
                       ))}
                       <td>
                         <div className="master-actions address-grid-actions">
+                          {(index === 1 || index === 2) && (
+                            <button
+                              type="button"
+                              className="master-action edit"
+                              disabled={!documentUrl}
+                              title={documentUrl ? 'View document' : 'No document URL available'}
+                              onClick={() =>
+                                setViewDocument({
+                                  url: documentUrl,
+                                  name: `${recordName === 'KYC' ? 'KYC' : 'Bank account'} document`,
+                                  contentType: String(fieldValue(row, 'MediaContentType') || ''),
+                                })
+                              }
+                            >
+                              <VisibilityOutlinedIcon fontSize="small" /> View document
+                            </button>
+                          )}
                           <button
                             type="button"
                             className="master-action edit"
@@ -565,6 +620,15 @@ export default function UserDetailStep({
             </table>
           </div>
         </section>
+      )}
+      {viewDocument && (
+        <FileViewer
+          open
+          fileUrl={viewDocument.url}
+          fileName={viewDocument.name}
+          contentType={viewDocument.contentType}
+          onClose={() => setViewDocument(null)}
+        />
       )}
     </form>
   );

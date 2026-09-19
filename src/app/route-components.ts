@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 export const routeComponents = {
+  '/Dashboard/PayinRequestList': lazy(() => import('../pages/Wallet/PayinRequestListPage')),
   '/Dashboard/payacclist': lazy(() => import('../pages/Masters/PaymentAccountPage')),
   '/Dashboard/payacclist/Create': lazy(() => import('../pages/Masters/PaymentAccountPage')),
   '/Dashboard/payacclist/View': lazy(() => import('../pages/Masters/PaymentAccountPage')),

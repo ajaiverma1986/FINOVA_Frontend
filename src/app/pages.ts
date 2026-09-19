@@ -1,5 +1,6 @@
 import type { PageDefinition } from '../core/types';
 export const pages: PageDefinition[] = [
+  { path: '/Dashboard/PayinRequestList', title: 'Pay-in requests', group: 'Wallet', component: 'PayinRequestListPage', source: 'src/pages/Wallet/PayinRequestListPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/ServicePolicy', title: 'Service Policy', group: 'Configuration', component: 'ServicePolicyPage', source: 'src/pages/Configuration/ServicePolicyPage.tsx', operations: [], defaults: {}, columns: [] },
   ...['', '/Create', '/View', '/Edit'].map(suffix => ({
     path: '/Dashboard/payacclist' + suffix, title: 'Payment Accounts', group: 'Masters',

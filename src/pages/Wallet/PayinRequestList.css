@@ -1,0 +1,100 @@
+.payin-search-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.payin-request-page {
+  min-width: 0;
+}
+.master-data-page.payin-request-page .master-form {
+  width: 100%;
+  max-width: none;
+}
+.payin-request-page table {
+  min-width: 1500px;
+}
+.payin-request-page th {
+  padding: 12px;
+}
+.payin-request-page td {
+  white-space: nowrap;
+}
+.payin-search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.payin-actions,
+.payin-pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+.payin-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition:
+    background-color 150ms,
+    box-shadow 150ms;
+}
+.payin-actions .payin-approve {
+  background: #13777e;
+  color: #fff;
+}
+.payin-actions .payin-reject {
+  background: #b42332;
+  color: #fff;
+}
+.payin-actions button:hover:not(:disabled) {
+  box-shadow: 0 3px 10px #123b5233;
+  filter: brightness(1.08);
+}
+.payin-actions button:focus-visible {
+  outline: 3px solid #197c86;
+  outline-offset: 3px;
+}
+.payin-actions .payin-export {
+  margin-left: auto;
+}
+.payin-request-page input[type='checkbox'] {
+  width: auto;
+}
+.payin-request-page .payin-selected {
+  background: #e8f6f5;
+}
+.payin-pagination > span:first-child {
+  margin-right: auto;
+}
+.payin-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #edf2f7;
+  white-space: nowrap;
+}
+.payin-status-1 {
+  background: #fff3cd;
+  color: #704f00;
+}
+.payin-status-2 {
+  background: #dff4e7;
+  color: #146335;
+}
+.payin-status-3 {
+  background: #fde3e6;
+  color: #962134;
+}
+.payin-request-page .master-action {
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .payin-actions .payin-export {
+    margin-left: 0;
+  }
+}

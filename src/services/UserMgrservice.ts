@@ -75,6 +75,7 @@ export interface CreateUserKycRequest {
   UserMasterId: number;
   KycID: number;
   DocumentNo: string | null;
+  File?: File | null;
   FileUrl: string | null;
   MediaExtension: string | null;
   MediaContentType: string | null;
@@ -87,6 +88,7 @@ export interface UpdateUserKycRequest {
   UserMasterId: number;
   KycID: number;
   DocumentNo: string | null;
+  File?: File | null;
   FileUrl: string | null;
   MediaExtension: string | null;
   MediaContentType: string | null;
@@ -100,9 +102,7 @@ export interface CreateUserBankAccountRequest {
   AccountName: string | null;
   AccountNo: string | null;
   Ifsccode: string | null;
-  BranchAddress: string | null;
-  Filename: string | null;
-  RejectedReason: string | null;
+  File?: File | null;
   Status: number;
 }
 
@@ -113,9 +113,7 @@ export interface UpdateUserBankAccountRequest {
   AccountName: string | null;
   AccountNo: string | null;
   Ifsccode: string | null;
-  BranchAddress: string | null;
-  Filename: string | null;
-  RejectedReason: string | null;
+  File?: File | null;
   Status: number;
 }
 
@@ -140,6 +138,34 @@ export interface UpdateUserConfigurationRequest {
   MaxPayinamount: number;
   MaxNoofcountPayin: number;
   SameAmountPayinAllowed: number;
+}
+
+function userBankAccountFormData(
+  body: CreateUserBankAccountRequest | UpdateUserBankAccountRequest,
+) {
+  const form = new FormData();
+  if ('OriginatorAccountID' in body)
+    form.append('OriginatorAccountID', String(body.OriginatorAccountID));
+  form.append('UserMasterID', String(body.UserMasterID));
+  form.append('BankId', String(body.BankId));
+  if (body.AccountName != null) form.append('AccountName', body.AccountName);
+  if (body.AccountNo != null) form.append('AccountNo', body.AccountNo);
+  if (body.Ifsccode != null) form.append('Ifsccode', body.Ifsccode);
+  if (body.File) form.append('File', body.File);
+  form.append('Status', String(body.Status));
+  return form;
+}
+
+function userKycFormData(body: CreateUserKycRequest | UpdateUserKycRequest) {
+  const form = new FormData();
+  if ('UserKYCID' in body) form.append('UserKycMasterId', String(body.UserKYCID));
+  form.append('UserMasterId', String(body.UserMasterId));
+  form.append('KycID', String(body.KycID));
+  if (body.DocumentNo != null) form.append('DocumentNo', body.DocumentNo);
+  if (body.File) form.append('File', body.File);
+  if (body.RejectedReason != null) form.append('RejectedReason', body.RejectedReason);
+  form.append('Status', String(body.Status));
+  return form;
 }
 
 export interface CreateOtherDetailsRequest {
@@ -243,9 +269,9 @@ export const UserMgrService = {
       { method: 'GET', signal },
     ),
   createUserKyc: (body: CreateUserKycRequest, signal?: AbortSignal) =>
-    request('/UserMgr/CreateUserKyc', { method: 'POST', body, signal }),
+    request('/UserMgr/CreateUserKyc', { method: 'POST', body: userKycFormData(body), signal }),
   updateUserKyc: (body: UpdateUserKycRequest, signal?: AbortSignal) =>
-    request('/UserMgr/UpdateUserKyc', { method: 'POST', body, signal }),
+    request('/UserMgr/UpdateUserKyc', { method: 'POST', body: userKycFormData(body), signal }),
   deleteUserKyc: (userKYCID: number, signal?: AbortSignal) =>
     request('/UserMgr/DeleteUserKyc/' + encodeURIComponent(String(userKYCID)), {
       method: 'DELETE',
@@ -272,9 +298,17 @@ export const UserMgrService = {
       { method: 'GET', signal },
     ),
   createUserBankAccount: (body: CreateUserBankAccountRequest, signal?: AbortSignal) =>
-    request('/UserMgr/CreateUserBankAccount', { method: 'POST', body, signal }),
+    request('/UserMgr/CreateUserBankAccount', {
+      method: 'POST',
+      body: userBankAccountFormData(body),
+      signal,
+    }),
   updateUserBankAccount: (body: UpdateUserBankAccountRequest, signal?: AbortSignal) =>
-    request('/UserMgr/UpdateUserBankAccount', { method: 'POST', body, signal }),
+    request('/UserMgr/UpdateUserBankAccount', {
+      method: 'POST',
+      body: userBankAccountFormData(body),
+      signal,
+    }),
   deleteUserBankAccount: (originatorAccountID: number, signal?: AbortSignal) =>
     request('/UserMgr/DeleteUserBankAccount/' + encodeURIComponent(String(originatorAccountID)), {
       method: 'DELETE',
