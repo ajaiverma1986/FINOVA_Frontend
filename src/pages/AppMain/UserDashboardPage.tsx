@@ -2,6 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../core/auth';
 import { request } from '../../core/api';
 import { UserDashboard } from '../../components/UserDashboard';
+import { loadMenu } from '../../core/navigation';
+import {
+  dashboardCardConfig,
+  configuredDashboardPermissions,
+} from '../../core/dashboardPermissions';
 import { ErrorState, Loading } from '../../components/Status';
 
 export default function UserDashboardPage() {
@@ -16,7 +21,21 @@ export default function UserDashboardPage() {
     enabled: !!session,
   });
 
-  if (profile.isPending) return <Loading />;
+  const permissions = useQuery({
+    queryKey: ['navigation', session?.username],
+    queryFn: ({ signal }) => loadMenu(signal),
+    enabled: !!session && dashboardCardConfig.mode === 'rolePermissions',
+    retry: false,
+    refetchInterval: 60000,
+  });
+
+  if (dashboardCardConfig.mode === 'rolePermissions' && permissions.isError)
+    return <ErrorState error={permissions.error} retry={() => void permissions.refetch()} />;
+  if (
+    profile.isPending ||
+    (dashboardCardConfig.mode === 'rolePermissions' && permissions.isPending)
+  )
+    return <Loading />;
   if (profile.isError) return <ErrorState error={profile.error} retry={() => profile.refetch()} />;
 
   const details = profile.data.Result;
@@ -24,5 +43,10 @@ export default function UserDashboardPage() {
   if (!Number.isInteger(userId) || userId <= 0)
     return <ErrorState error={new Error('Your profile does not contain a valid user ID.')} />;
 
-  return <UserDashboard userId={userId} />;
+  return (
+    <UserDashboard
+      userId={userId}
+      cardPermissions={configuredDashboardPermissions(permissions.data ?? [])}
+    />
+  );
 }

@@ -1,5 +1,8 @@
 import type { PageDefinition } from '../core/types';
 export const pages: PageDefinition[] = [
+  { path: '/Dashboard/CreatePayinRequest', title: 'Create pay-in request', group: 'Wallet', component: 'CreatePayinRequestPage', source: 'src/pages/Wallet/CreatePayinRequestPage.tsx', operations: [], defaults: {}, columns: [] },
+  { path: '/Dashboard/CompanyAccount', title: 'Company accounts', group: 'Wallet', component: 'CompanyAccountPage', source: 'src/pages/Wallet/CompanyAccountPage.tsx', operations: [], defaults: {}, columns: [] },
+  { path: '/Dashboard/TransferRequestList', title: 'Transfer Report', group: 'Repost', component: 'TransferRequestListPage', source: 'src/pages/Repost/TransferRequestListPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/PayinRequestList', title: 'Pay-in requests', group: 'Wallet', component: 'PayinRequestListPage', source: 'src/pages/Wallet/PayinRequestListPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/ServicePolicy', title: 'Service Policy', group: 'Configuration', component: 'ServicePolicyPage', source: 'src/pages/Configuration/ServicePolicyPage.tsx', operations: [], defaults: {}, columns: [] },
   ...['', '/Create', '/View', '/Edit'].map(suffix => ({
@@ -358,15 +361,15 @@ export const pages: PageDefinition[] = [
     columns: ['ModuleID', 'ApplicationID', 'ApplicationName', 'ModuleName', 'DefaultMenuUrl', 'StatusName'],
   },
   {
-    path: '/Dashboard/PayoutTxnrpt',
+    path: '/Dashboard/TransactionDetailReport',
     title: 'Transaction Report',
     group: 'Reports',
     component: 'TransactionReportPage',
-    source: 'src/app/component/Reports/transaction-report/transaction-report.component.ts',
-    operations: ['ReportmanService.PayoutTransactionReport'],
+    source: 'src/pages/Reports/TransactionReportPage.tsx',
+    operations: [],
     defaults: {
-      PageNo: 1,
-      PageSize: 10,
+      PageNumber: 1,
+      PageSize: 20,
     },
     columns: [
       'BankTxnDatetime',

@@ -32,7 +32,7 @@ export interface CreatePayinRequest {
   RefNo1?: string | null;
   RefNo2?: string | null;
   Remarks?: string | null;
-  RecieptFileurl?: string | null;
+  File?: File | null;
   Status: number;
 }
 
@@ -52,7 +52,9 @@ export interface CompanyAccountRequest {
   Status: number;
 }
 
-function companyAccountForm(body: CompanyAccountRequest & { CompanyAccountId?: number }) {
+function walletForm(
+  body: CreatePayinRequest | (CompanyAccountRequest & { CompanyAccountId?: number }),
+) {
   const form = new FormData();
   Object.entries(body).forEach(([key, value]) => {
     if (value != null) form.append(key, value instanceof File ? value : String(value));
@@ -82,7 +84,7 @@ export const WalletService = {
       signal,
     }),
   createPayinRequest: (body: CreatePayinRequest, signal?: AbortSignal) =>
-    request('/Wallet/CreatePayinRequest', { method: 'POST', body, signal }),
+    request('/Wallet/CreatePayinRequest', { method: 'POST', body: walletForm(body), signal }),
   getPayinRequestById: (requestID: number, signal?: AbortSignal) =>
     get('GetPayinRequestByID', { requestID }, signal),
   getAllPayinRequests: (signal?: AbortSignal) => get('GetAllPayinRequests', {}, signal),
@@ -93,7 +95,7 @@ export const WalletService = {
   createCompanyAccount: (body: CompanyAccountRequest, signal?: AbortSignal) =>
     request('/Wallet/CreateCompanyAccount', {
       method: 'POST',
-      body: companyAccountForm(body),
+      body: walletForm(body),
       signal,
     }),
   updateCompanyAccount: (
@@ -102,7 +104,7 @@ export const WalletService = {
   ) =>
     request('/Wallet/UpdateCompanyAccount', {
       method: 'POST',
-      body: companyAccountForm(body),
+      body: walletForm(body),
       signal,
     }),
   deleteCompanyAccount: (companyAccountId: number, signal?: AbortSignal) =>

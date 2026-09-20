@@ -1,5 +1,8 @@
 import { lazy } from 'react';
 export const routeComponents = {
+  '/Dashboard/CreatePayinRequest': lazy(() => import('../pages/Wallet/CreatePayinRequestPage')),
+  '/Dashboard/CompanyAccount': lazy(() => import('../pages/Wallet/CompanyAccountPage')),
+  '/Dashboard/TransferRequestList': lazy(() => import('../pages/Repost/TransferRequestListPage')),
   '/Dashboard/PayinRequestList': lazy(() => import('../pages/Wallet/PayinRequestListPage')),
   '/Dashboard/payacclist': lazy(() => import('../pages/Masters/PaymentAccountPage')),
   '/Dashboard/payacclist/Create': lazy(() => import('../pages/Masters/PaymentAccountPage')),
@@ -120,7 +123,7 @@ export const routeComponents = {
   '/Dashboard/AppMgr': lazy(() => import('../pages/AppManager/AppManagerPage')),
   '/Dashboard/MenuMgr': lazy(() => import('../pages/AppManager/MenuMasterPage')),
   '/Dashboard/ModuleMgr': lazy(() => import('../pages/AppManager/ModuleMasterPage')),
-  '/Dashboard/PayoutTxnrpt': lazy(() => import('../pages/Reports/TransactionReportPage')),
+  '/Dashboard/TransactionDetailReport': lazy(() => import('../pages/Reports/TransactionReportPage')),
   '/Dashboard/stmtrpt': lazy(() => import('../pages/Reports/UsrStatementPage')),
   '/Dashboard/payinReport': lazy(() => import('../pages/Reports/PayinRequestReportPage')),
   '/Dashboard/Commdistr': lazy(() => import('../pages/Configuration/DistributionCommissionPage')),

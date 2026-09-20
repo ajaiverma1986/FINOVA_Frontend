@@ -113,7 +113,10 @@ export const masterDataResources = {
     idQuery: 'planID',
     listPath: '/MasterData/GetAllPlans',
     activePath: '/MasterData/GetActivePlans',
-    fields: [field('PlanName', 'Plan name'), field('Status', 'Status', 'number')],
+    fields: [
+      field('PlanName', 'Plan name'),
+      { ...field('Status', 'Status', 'number'), options: [{ value: 1, label: 'Active' }, { value: 0, label: 'In-Active' }] },
+    ],
   }),
   companyType: resource({
     key: 'companyType',
