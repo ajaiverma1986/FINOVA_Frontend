@@ -1,5 +1,16 @@
 import { request } from '../core/api';
 
+export interface ForgotPasswordRequest {
+  UserCode: string | null;
+}
+
+export interface ResetPasswordRequest {
+  UserCode: string | null;
+  OTP: string | null;
+  NewPassword: string | null;
+  ConfirmPassword: string | null;
+}
+
 export interface CreateUserMasterRequest {
   UserTypeId: number | null;
   OrganizationID: number;
@@ -186,6 +197,10 @@ export interface UpdateOtherDetailsRequest {
 }
 
 export const UserMgrService = {
+  resetPassword: (body: ResetPasswordRequest, signal?: AbortSignal) =>
+    request('/UserMgr/ResetPassword', { method: 'POST', body, signal, anonymous: true }),
+  forgotPassword: (body: ForgotPasswordRequest, signal?: AbortSignal) =>
+    request('/UserMgr/ForgotPassword', { method: 'POST', body, signal, anonymous: true }),
   uploadUserKycFile: (userMasterID: number, file: File, signal?: AbortSignal) => {
     const body = new FormData();
     body.append('UserMasterID', String(userMasterID));
