@@ -20,6 +20,7 @@ export default function UserDetailStep({
   onPrevious,
   onNext,
   onSaving,
+  isLastStep = index === detailSteps.length - 1,
 }: {
   index: number;
   userId: number;
@@ -28,6 +29,7 @@ export default function UserDetailStep({
   onPrevious: () => void;
   onNext: () => void;
   onSaving: (saving: boolean) => void;
+  isLastStep?: boolean;
 }) {
   const config = detailSteps[index];
   const hasGrid = index >= 0 && index <= 2;
@@ -521,7 +523,7 @@ export default function UserDetailStep({
             ? 'Saving...'
             : pendingCreate.current
               ? 'Retry'
-              : index === detailSteps.length - 1
+              : isLastStep
                 ? 'Save and finish'
                 : 'Next'}
         </button>
@@ -587,9 +589,8 @@ export default function UserDetailStep({
                                   contentType: String(fieldValue(row, 'MediaContentType') || ''),
                                 })
                               }
-                            >
-                              <VisibilityOutlinedIcon fontSize="small" /> View document
-                            </button>
+                             data-grid-icon="true" aria-label="View document">
+                              <VisibilityOutlinedIcon fontSize="small" /></button>
                           )}
                           <button
                             type="button"
@@ -598,9 +599,8 @@ export default function UserDetailStep({
                             disabled={saving || pendingCreate.current}
                             aria-label={`Edit ${recordName} ${id}`}
                             onClick={() => populate(row)}
-                          >
-                            <EditOutlinedIcon fontSize="small" /> Edit
-                          </button>
+                           data-grid-icon="true">
+                            <EditOutlinedIcon fontSize="small" /></button>
                           <button
                             type="button"
                             className="master-action delete"
@@ -608,9 +608,8 @@ export default function UserDetailStep({
                             disabled={saving || pendingCreate.current}
                             aria-label={`Delete ${recordName} ${id}`}
                             onClick={() => void deleteRecord(id)}
-                          >
-                            <DeleteOutlineIcon fontSize="small" /> Delete
-                          </button>
+                           data-grid-icon="true">
+                            <DeleteOutlineIcon fontSize="small" /></button>
                         </div>
                       </td>
                     </tr>

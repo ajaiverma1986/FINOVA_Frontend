@@ -149,28 +149,23 @@ export default function CompanyAccountComponent() {
             return (
               <div className="master-actions">
                 {fileUrl && source && (
-                  <button type="button" className="master-action view" onClick={() => setPreview(source)}>
-                    <VisibilityOutlinedIcon fontSize="small" /> View document
-                  </button>
+                  <button type="button" className="master-action view" onClick={() => setPreview(source)} data-grid-icon="true" aria-label="View document" title="View document">
+                    <VisibilityOutlinedIcon fontSize="small" /></button>
                 )}
                 <button
                   type="button"
                   className="master-action view"
                   disabled={!id}
                   onClick={() => setEditor({ mode: 'view', id })}
-                >
-                  <VisibilityOutlinedIcon fontSize="small" />
-                  View
-                </button>
+                 data-grid-icon="true" aria-label="View" title="View">
+                  <VisibilityOutlinedIcon fontSize="small" /></button>
                 <button
                   type="button"
                   className="master-action edit"
                   disabled={!id}
                   onClick={() => setEditor({ mode: 'edit', id })}
-                >
-                  <EditOutlinedIcon fontSize="small" />
-                  Edit
-                </button>
+                 data-grid-icon="true" aria-label="Edit" title="Edit">
+                  <EditOutlinedIcon fontSize="small" /></button>
               </div>
             );
           }}

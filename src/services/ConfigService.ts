@@ -85,7 +85,37 @@ export interface UpdateTransactionSlabRequest {
   Status: number;
 }
 
+export interface CreateCodePrefixRequest {
+  OrganizationId: number;
+  ApplicationId: number;
+  CodePrefix: string | null;
+  CodeLngth: string | null;
+  Status: number;
+}
+
+export interface UpdateCodePrefixRequest extends CreateCodePrefixRequest {
+  Id: number;
+}
+
+export interface GetCodePrefixRequest {
+  Id: number | null;
+  OrganizationId: number | null;
+  ApplicationId: number | null;
+  CodePrefix: string | null;
+  Status: number | null;
+}
+
 export const ConfigService = {
+  createCodePrefix: (body: CreateCodePrefixRequest, signal?: AbortSignal) =>
+    request('/Config/CreateCodePrefix', { method: 'POST', body, signal }),
+  updateCodePrefix: (body: UpdateCodePrefixRequest, signal?: AbortSignal) =>
+    request('/Config/UpdateCodePrefix', { method: 'POST', body, signal }),
+  deleteCodePrefix: (id: number, signal?: AbortSignal) =>
+    request(`/Config/DeleteCodePrefix/${encodeURIComponent(String(id))}`, { method: 'DELETE', signal }),
+  getCodePrefixes: (body: GetCodePrefixRequest, signal?: AbortSignal) =>
+    request('/Config/GetCodePrefixes', { method: 'POST', body, signal }),
+  getActiveCodePrefix: (organizationId: number, applicationId: number, signal?: AbortSignal) =>
+    request(`/Config/GetActiveCodePrefix/${encodeURIComponent(String(organizationId))}/${encodeURIComponent(String(applicationId))}`, { method: 'GET', signal }),
   getServicePolicy: (body: GetServicePolicyRequest, signal?: AbortSignal) =>
     request(`/Config/GetServicePolicy`, { method: 'POST', body, signal }),
   addTransacttionSlab: (body: AddTxnslabRequest, signal?: AbortSignal) =>

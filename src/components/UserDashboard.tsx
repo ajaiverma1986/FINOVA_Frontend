@@ -166,7 +166,7 @@ export function UserDashboard({ userId, cardPermissions }: UserDashboardProps) {
                           x2="665"
                           y1={195 - fraction * 155}
                           y2={195 - fraction * 155}
-                          stroke="#dde5eb"
+                          stroke="var(--color-border)"
                         />
                         <text x="45" y={199 - fraction * 155} textAnchor="end">
                           {Math.round(max * fraction)}
@@ -175,7 +175,7 @@ export function UserDashboard({ userId, cardPermissions }: UserDashboardProps) {
                     ))}
                     <polyline
                       fill="none"
-                      stroke="#176e72"
+                      stroke="var(--color-primary)"
                       strokeWidth="3"
                       points={trend.data
                         .map(
@@ -189,7 +189,7 @@ export function UserDashboard({ userId, cardPermissions }: UserDashboardProps) {
                           cx={65 + index * 98}
                           cy={195 - (point.count / max) * 155}
                           r="5"
-                          fill="#176e72"
+                          fill="var(--color-primary)"
                         >
                           <title>
                             {point.label}: {point.count} transactions

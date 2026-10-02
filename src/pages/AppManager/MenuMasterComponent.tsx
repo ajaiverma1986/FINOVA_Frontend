@@ -266,9 +266,9 @@ export default function MenuMasterComponent() {
                   <tr key={rowId(row) || index}>
                     {columns.map((column) => <td key={column}>{String(value(row, column) ?? '—')}</td>)}
                     <td><div className="master-actions">
-                      <button type="button" className="master-action view" title="View menu" aria-label="View menu" onClick={() => open('view', row)}><VisibilityOutlinedIcon fontSize="small" /> View</button>
-                      <button type="button" className="master-action edit" title="Edit menu" aria-label="Edit menu" onClick={() => open('edit', row)}><EditOutlinedIcon fontSize="small" /> Edit</button>
-                      <button type="button" className="master-action delete" title="Delete menu" aria-label="Delete menu" onClick={() => { if (window.confirm('Delete this menu?')) remove.mutate(rowId(row)); }}><DeleteOutlineIcon fontSize="small" /> Delete</button>
+                      <button type="button" className="master-action view" title="View menu" aria-label="View menu" onClick={() => open('view', row)} data-grid-icon="true"><VisibilityOutlinedIcon fontSize="small" /></button>
+                      <button type="button" className="master-action edit" title="Edit menu" aria-label="Edit menu" onClick={() => open('edit', row)} data-grid-icon="true"><EditOutlinedIcon fontSize="small" /></button>
+                      <button type="button" className="master-action delete" title="Delete menu" aria-label="Delete menu" onClick={() => { if (window.confirm('Delete this menu?')) remove.mutate(rowId(row)); }} data-grid-icon="true"><DeleteOutlineIcon fontSize="small" /></button>
                     </div></td>
                   </tr>
                 ))}

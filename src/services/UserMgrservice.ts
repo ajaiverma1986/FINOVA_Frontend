@@ -196,7 +196,19 @@ export interface UpdateOtherDetailsRequest {
   Status: number;
 }
 
+export interface MapUserParentRequest {
+  userMasterID: number;
+  parentId: number;
+}
+
 export const UserMgrService = {
+  mapUserParent: (body: MapUserParentRequest, signal?: AbortSignal) =>
+    request('/UserMgr/MapUserParent', { method: 'POST', body, signal }),
+  getUsersByParentId: (parentId: number, userTypeId: number, signal?: AbortSignal) =>
+    request(
+      `/UserMgr/GetUsersByParentId/${encodeURIComponent(String(parentId))}?userTypeId=${encodeURIComponent(String(userTypeId))}`,
+      { method: 'GET', signal },
+    ),
   resetPassword: (body: ResetPasswordRequest, signal?: AbortSignal) =>
     request('/UserMgr/ResetPassword', { method: 'POST', body, signal, anonymous: true }),
   forgotPassword: (body: ForgotPasswordRequest, signal?: AbortSignal) =>

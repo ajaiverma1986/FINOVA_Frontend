@@ -42,6 +42,29 @@ function mount(node: React.ReactNode) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   render(<QueryClientProvider client={client}>{node}</QueryClientProvider>);
 }
+it('filters code prefixes, loads an editor by ID, updates strings and searches active prefixes', async () => {
+  vi.mocked(request).mockResolvedValue({ Result: [{ Id: 7, OrganizationId: 2, ApplicationId: 3, CodePrefix: 'FIN', CodeLngth: '08', Status: 1 }] });
+  mount(<ConfigCrudComponent resourceKey="codePrefix" />);
+  await screen.findByText('FIN');
+  expect(request).toHaveBeenCalledWith('/Config/GetCodePrefixes', expect.objectContaining({
+    method: 'POST', body: { Id: null, OrganizationId: null, ApplicationId: null, CodePrefix: null, Status: null },
+  }));
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+  expect((screen.getByLabelText('Status') as HTMLSelectElement).value).toBe('');
+  fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Edit code prefix' });
+  await within(dialog).findByDisplayValue('FIN');
+  expect(request).toHaveBeenCalledWith('/Config/GetCodePrefixes', expect.objectContaining({ body: { Id: 7, OrganizationId: null, ApplicationId: null, CodePrefix: null, Status: null } }));
+  fireEvent.change(within(dialog).getByLabelText('Code Prefix'), { target: { value: 'NEW' } });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+  await waitFor(() => expect(request).toHaveBeenCalledWith('/Config/UpdateCodePrefix', expect.objectContaining({ method: 'POST', body: { Id: 7, OrganizationId: 2, ApplicationId: 3, CodePrefix: 'NEW', CodeLngth: '08', Status: 1 } })));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  fireEvent.change(screen.getByLabelText('Search by'), { target: { value: 'GetActiveCodePrefix' } });
+  fireEvent.change(screen.getByLabelText('Organization Id'), { target: { value: '2' } });
+  fireEvent.change(screen.getByLabelText('Application Id'), { target: { value: '3' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+  await waitFor(() => expect(request).toHaveBeenCalledWith('/Config/GetActiveCodePrefix/2/3', expect.objectContaining({ method: 'GET' })));
+});
 it.each(['topup', 'commission', 'transaction'])(
   'lists, views, creates and deletes %s records',
   async (key) => {

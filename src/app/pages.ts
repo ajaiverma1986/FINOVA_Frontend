@@ -1,5 +1,6 @@
 import type { PageDefinition } from '../core/types';
 export const pages: PageDefinition[] = [
+  { path: '/Dashboard/CodePrefix', title: 'Code prefixes', group: 'Configuration', component: 'CodePrefixPage', source: 'src/pages/Configuration/CodePrefixPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/CreatePayinRequest', title: 'Create pay-in request', group: 'Wallet', component: 'CreatePayinRequestPage', source: 'src/pages/Wallet/CreatePayinRequestPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/CompanyAccount', title: 'Company accounts', group: 'Wallet', component: 'CompanyAccountPage', source: 'src/pages/Wallet/CompanyAccountPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/TransferRequestList', title: 'Transfer Report', group: 'Repost', component: 'TransferRequestListPage', source: 'src/pages/Repost/TransferRequestListPage.tsx', operations: [], defaults: {}, columns: [] },
@@ -359,6 +360,16 @@ export const pages: PageDefinition[] = [
     operations: [],
     defaults: {},
     columns: ['ModuleID', 'ApplicationID', 'ApplicationName', 'ModuleName', 'DefaultMenuUrl', 'StatusName'],
+  },
+  {
+    path: '/Dashboard/UserListReport',
+    title: 'User List Report',
+    group: 'Reports',
+    component: 'UserListReportPage',
+    source: 'src/pages/Reports/UserListReportPage.tsx',
+    operations: [],
+    defaults: { PageNumber: 1, PageSize: 20 },
+    columns: ['UserMasterID', 'UserName', 'FirstName', 'LastName', 'UserTypeName', 'StatusName'],
   },
   {
     path: '/Dashboard/TransactionDetailReport',

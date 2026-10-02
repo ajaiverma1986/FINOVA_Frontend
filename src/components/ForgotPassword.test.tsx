@@ -1,3 +1,4 @@
+import { ThemeProvider } from '../theme/theme.provider';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
@@ -19,13 +20,15 @@ function LoginDestination() {
 }
 function setup(path = '/forget') {
   render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/forget" element={<ForgotPasswordPage />} />
-        <Route path="/forget/otp" element={<ForgotPasswordOtpPage />} />
-        <Route path="/login" element={<LoginDestination />} />
-      </Routes>
-    </MemoryRouter>,
+    <ThemeProvider>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/forget" element={<ForgotPasswordPage />} />
+          <Route path="/forget/otp" element={<ForgotPasswordOtpPage />} />
+          <Route path="/login" element={<LoginDestination />} />
+        </Routes>
+      </MemoryRouter>
+    </ThemeProvider>,
   );
 }
 describe('password recovery', () => {
@@ -46,12 +49,14 @@ describe('password recovery', () => {
       .mockResolvedValueOnce(new Response(JSON.stringify({ HasError: false })));
     vi.stubGlobal('fetch', fetch);
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/forget/otp', state: { usercode: 'tester' } }]}>
-        <Routes>
-          <Route path="/forget/otp" element={<ForgotPasswordOtpPage />} />
-          <Route path="/login" element={<LoginDestination />} />
-        </Routes>
-      </MemoryRouter>,
+      <ThemeProvider>
+        <MemoryRouter initialEntries={[{ pathname: '/forget/otp', state: { usercode: 'tester' } }]}>
+          <Routes>
+            <Route path="/forget/otp" element={<ForgotPasswordOtpPage />} />
+            <Route path="/login" element={<LoginDestination />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemeProvider>,
     );
     fireEvent.change(screen.getByLabelText('6-digit OTP'), { target: { value: '012345' } });
     fireEvent.change(screen.getByLabelText('New password'), {
@@ -86,9 +91,11 @@ describe('password recovery', () => {
       .mockRejectedValueOnce(new Error('Unable to resend OTP'))
       .mockResolvedValue();
     render(
-      <MemoryRouter>
-        <ForgotPasswordOtp usercode="tester" />
-      </MemoryRouter>,
+      <ThemeProvider>
+        <MemoryRouter>
+          <ForgotPasswordOtp usercode="tester" />
+        </MemoryRouter>
+      </ThemeProvider>,
     );
     const resend = screen.getByRole('button', { name: 'Resend OTP' }) as HTMLButtonElement;
     expect(resend.disabled).toBe(true);

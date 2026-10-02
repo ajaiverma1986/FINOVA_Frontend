@@ -372,9 +372,8 @@ export default function PayinRequestListComponent() {
                       className="master-action view"
                       disabled={!documentUrl(row)}
                       onClick={() => setPreview(row)}
-                    >
-                      <VisibilityOutlinedIcon fontSize="small" /> View document
-                    </button>
+                     data-grid-icon="true" aria-label="View document" title="View document">
+                      <VisibilityOutlinedIcon fontSize="small" /></button>
                   </td>
                 </tr>
               );

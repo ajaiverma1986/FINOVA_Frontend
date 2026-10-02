@@ -4,6 +4,22 @@ import { UserMgrService } from './UserMgrservice';
 
 vi.mock('../core/api', () => ({ request: vi.fn().mockResolvedValue({ Result: [] }) }));
 afterEach(() => vi.clearAllMocks());
+it('loads Distributors belonging to the selected parent', async () => {
+  await UserMgrService.getUsersByParentId(3, 4);
+  expect(request).toHaveBeenCalledWith('/UserMgr/GetUsersByParentId/3?userTypeId=4', {
+    method: 'GET',
+    signal: undefined,
+  });
+});
+it('posts parent mapping with the selected direct parent', async () => {
+  const body = { userMasterID: 40, parentId: 25 };
+  await UserMgrService.mapUserParent(body);
+  expect(request).toHaveBeenCalledWith('/UserMgr/MapUserParent', {
+    method: 'POST',
+    body,
+    signal: undefined,
+  });
+});
 
 it.each([
   ['deleteUserAddress', [7], '/UserMgr/DeleteUserAddress/7', 'DELETE'],

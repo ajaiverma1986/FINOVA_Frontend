@@ -1,4 +1,5 @@
 import UserDetailStep from './UserDetailStep';
+import UserParentMapping from './UserParentMapping';
 import { detailSteps, recordId } from './userWizardData';
 import './UserWizard.css';
 import CreatePanelDialog from '../AppManager/CreatePanelDialog';
@@ -7,8 +8,7 @@ import { MasterDataService } from '../../services/MasterDataService';
 import { OrgMgrService } from '../../services/OrgMgrService';
 import { exportToExcel } from '../../core/exportToExcel';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import {
@@ -37,6 +37,7 @@ const columns = [
   'StatusName',
 ];
 const PAGE_SIZE = 20;
+const titleOptions = ['Mr.', 'Ms.', 'Mrs.', 'Miss', 'Dr.', 'Prof.'];
 const emptyForm: UserForm = {
   UserMasterID: 0,
   UserTypeId: null,
@@ -134,6 +135,28 @@ export default function UserMasterComponent() {
     retry: false,
   });
   const lookupsReady = userTypes.isSuccess && organizations.isSuccess && genders.isSuccess;
+  const selectedUserType = (userTypes.data ?? []).find(
+    (row) => numberValue(value(row, 'UserTypeId')) === Number(form.UserTypeId),
+  );
+  const selectedUserTypeName = String(
+    value(selectedUserType ?? {}, 'UserTypeName') ?? value(selectedUserType ?? {}, 'Name') ?? '',
+  );
+  const retailerSelected = ['retailer', 'retailor'].includes(
+    selectedUserTypeName.trim().toLowerCase(),
+  );
+  const parentMappingApplicable =
+    retailerSelected || Number(form.UserTypeId) === 4 || Number(form.UserTypeId) === 5;
+  const parentMappingStep = detailSteps.length + 1;
+  useEffect(() => {
+    if (!parentMappingApplicable && step === parentMappingStep) setStep(0);
+  }, [parentMappingApplicable, parentMappingStep, step]);
+  const isAdmin = (userTypes.data ?? []).some(
+    (row) =>
+      numberValue(value(row, 'UserTypeId')) === form.UserTypeId &&
+      String(value(row, 'UserTypeName') ?? value(row, 'Name') ?? '')
+        .trim()
+        .toLowerCase() === 'admin',
+  );
   function lookupField(
     field: 'UserTypeId' | 'OrganizationID' | 'GenderID',
     label: string,
@@ -219,16 +242,6 @@ export default function UserMasterComponent() {
       records((await UserMgrService.getUserMasterById(selectedId!, signal)).Result)[0],
     retry: false,
   });
-  const remove = useMutation({
-    mutationFn: (id: number) => UserMgrService.deleteUserMaster(id),
-    onSuccess: async () => {
-      setMode(null);
-      setSelectedId(null);
-      setMessage('User deleted.');
-      await cache.invalidateQueries({ queryKey: ['user-master'] });
-    },
-    onError: setError,
-  });
   useEffect(() => {
     if (mode === 'edit' && detail.data) setForm(toForm(detail.data));
   }, [detail.data, mode]);
@@ -288,6 +301,7 @@ export default function UserMasterComponent() {
     setSaving(true);
     setError(undefined);
     try {
+      if (isAdmin && !form.UserName?.trim()) throw new Error('Enter a user name for Admin.');
       const { UserMasterID, Password, IsPasswordExpired, UserId, IsLocked, LockedTill, ...shared } =
         form;
       let id = UserMasterID;
@@ -295,13 +309,16 @@ export default function UserMasterComponent() {
         await UserMgrService.updateUserMaster({ ...shared, UserMasterID: id });
       } else {
         if (!created.current) {
-          const existing = records(
-            (await UserMgrService.getUserMasterByUserName(form.UserName ?? '')).Result,
-          ).filter(
-            (row) =>
-              rowId(row) &&
-              String(value(row, 'UserName')).toLowerCase() === String(form.UserName).toLowerCase(),
-          );
+          const existing = form.UserName?.trim()
+            ? records(
+                (await UserMgrService.getUserMasterByUserName(form.UserName ?? '')).Result,
+              ).filter(
+                (row) =>
+                  rowId(row) &&
+                  String(value(row, 'UserName')).toLowerCase() ===
+                    String(form.UserName).toLowerCase(),
+              )
+            : [];
           if (existing.length > 1)
             throw new Error(
               'More than one user matches this name. Open the intended user using Edit.',
@@ -317,11 +334,10 @@ export default function UserMasterComponent() {
             );
             return;
           }
-          if (!Password) throw new Error('Enter a password for the new user.');
           const response = await UserMgrService.createUserMaster({
             ...shared,
             Status: 8,
-            Password,
+            Password: 'password',
             IsPasswordExpired: false,
             UserId: 0,
             IsLocked: false,
@@ -330,7 +346,7 @@ export default function UserMasterComponent() {
           created.current = true;
           id = recordId(response.Result, 'UserMasterID');
         }
-        if (!id) {
+        if (!id && form.UserName?.trim()) {
           const found = records(
             (await UserMgrService.getUserMasterByUserName(form.UserName ?? '')).Result,
           ).filter(
@@ -547,33 +563,16 @@ export default function UserMasterComponent() {
                             title="View user"
                             aria-label="View user"
                             onClick={() => open('view', row)}
-                          >
-                            <VisibilityOutlinedIcon fontSize="small" /> View
-                          </button>
+                           data-grid-icon="true">
+                            <VisibilityOutlinedIcon fontSize="small" /></button>
                           <button
                             type="button"
                             className="master-action edit"
                             title="Edit user"
                             aria-label="Edit user"
                             onClick={() => open('edit', row)}
-                          >
-                            <EditOutlinedIcon fontSize="small" /> Edit
-                          </button>
-                          <button
-                            type="button"
-                            disabled={remove.isPending}
-                            className="master-action delete"
-                            title="Delete user"
-                            aria-label="Delete user"
-                            onClick={() => {
-                              if (window.confirm('Delete this user?')) {
-                                setError(undefined);
-                                remove.mutate(rowId(row));
-                              }
-                            }}
-                          >
-                            <DeleteOutlineIcon fontSize="small" /> Delete
-                          </button>
+                           data-grid-icon="true">
+                            <EditOutlinedIcon fontSize="small" /></button>
                         </div>
                       </td>
                     </tr>
@@ -627,7 +626,11 @@ export default function UserMasterComponent() {
             {mode !== 'view' && (
               <>
                 <div className="user-wizard-progress" role="tablist" aria-label="User setup steps">
-                  {['User', ...detailSteps.map((item) => item.title)].map((title, index) => (
+                  {[
+                    'User',
+                    ...detailSteps.map((item) => item.title),
+                    ...(parentMappingApplicable ? ['Parent Mapping'] : []),
+                  ].map((title, index) => (
                     <button
                       key={title}
                       type="button"
@@ -676,8 +679,11 @@ export default function UserMasterComponent() {
                   </p>
                 )}
                 <p className="user-wizard-hint">
-                  Step {step + 1} of 6. Next saves this step. Switch tabs or use Previous to keep
-                  editing without saving.
+                  Step {step + 1} of {parentMappingApplicable ? 7 : 6}.{' '}
+                  {step === parentMappingStep
+                    ? 'Save and finish saves this step and closes the wizard.'
+                    : 'Next saves this step.'}{' '}
+                  Switch tabs or use Previous to keep editing without saving.
                   {!form.UserMasterID && ' Save the user first to unlock the other tabs.'}
                 </p>
               </>
@@ -727,29 +733,27 @@ export default function UserMasterComponent() {
                           User Name
                           <input
                             type="text"
-                            required
+                            required={isAdmin}
                             value={form.UserName ?? ''}
                             onChange={(event) => updateField('UserName', event.target.value)}
                           />
                         </label>
-                        {!form.UserMasterID && !created.current && (
-                          <label className="master-field">
-                            Password
-                            <input
-                              type="password"
-                              autoComplete="new-password"
-                              value={form.Password ?? ''}
-                              onChange={(event) => updateField('Password', event.target.value)}
-                            />
-                          </label>
-                        )}
                         <label className="master-field">
                           Title
-                          <input
-                            type="text"
+                          <select
                             value={form.Title ?? ''}
                             onChange={(event) => updateField('Title', event.target.value)}
-                          />
+                          >
+                            <option value="">Select title</option>
+                            {form.Title && !titleOptions.includes(form.Title) && (
+                              <option value={form.Title}>{form.Title}</option>
+                            )}
+                            {titleOptions.map((title) => (
+                              <option key={title} value={title}>
+                                {title}
+                              </option>
+                            ))}
+                          </select>
                         </label>
                         <label className="master-field">
                           First Name
@@ -813,11 +817,14 @@ export default function UserMasterComponent() {
                     index={index}
                     userId={form.UserMasterID}
                     userTypeId={form.UserTypeId}
+                    isLastStep={index === detailSteps.length - 1 && !parentMappingApplicable}
                     active={step === index + 1}
                     onSaving={setSaving}
                     onPrevious={() => setStep(step - 1)}
                     onNext={() => {
-                      if (index === detailSteps.length - 1) {
+                      if (index === detailSteps.length - 1 && parentMappingApplicable) {
+                        setStep(parentMappingStep);
+                      } else if (index === detailSteps.length - 1) {
                         setMessage(
                           mode === 'create' ? 'User setup completed.' : 'User details updated.',
                         );
@@ -832,6 +839,17 @@ export default function UserMasterComponent() {
                     }}
                   />
                 ))}
+              {mode !== 'view' && form.UserMasterID > 0 && parentMappingApplicable && (
+                <UserParentMapping
+                  key={`${form.UserMasterID}-${form.UserTypeId}`}
+                  userId={form.UserMasterID}
+                  userTypeId={Number(form.UserTypeId)}
+                  userTypeName={selectedUserTypeName}
+                  active={step === parentMappingStep}
+                  onSaving={setSaving}
+                  onFinish={close}
+                />
+              )}
             </div>
           </section>
         </CreatePanelDialog>

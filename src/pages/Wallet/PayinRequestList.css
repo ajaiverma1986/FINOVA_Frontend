@@ -15,7 +15,7 @@
   min-width: 1500px;
 }
 .payin-request-page th {
-  padding: 12px;
+  padding: var(--spacing-md);
 }
 .payin-request-page td {
   white-space: nowrap;
@@ -24,14 +24,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: var(--spacing-lg);
 }
 .payin-actions,
 .payin-pagination {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--spacing-md);
   margin: 20px 0;
 }
 .payin-actions button {
@@ -44,19 +44,19 @@
     box-shadow 150ms;
 }
 .payin-actions .payin-approve {
-  background: #13777e;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 .payin-actions .payin-reject {
-  background: #b42332;
-  color: #fff;
+  background: var(--color-error);
+  color: var(--color-on-primary);
 }
 .payin-actions button:hover:not(:disabled) {
-  box-shadow: 0 3px 10px #123b5233;
+  box-shadow: var(--shadow-md);
   filter: brightness(1.08);
 }
 .payin-actions button:focus-visible {
-  outline: 3px solid #197c86;
+  outline: 3px solid var(--color-primary);
   outline-offset: 3px;
 }
 .payin-actions .payin-export {
@@ -66,29 +66,29 @@
   width: auto;
 }
 .payin-request-page .payin-selected {
-  background: #e8f6f5;
+  background: var(--color-hover);
 }
 .payin-pagination > span:first-child {
   margin-right: auto;
 }
 .payin-status {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background: #edf2f7;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-lg);
+  background: var(--color-surface-muted);
   white-space: nowrap;
 }
 .payin-status-1 {
-  background: #fff3cd;
-  color: #704f00;
+  background: var(--color-warning-surface);
+  color: var(--color-warning);
 }
 .payin-status-2 {
-  background: #dff4e7;
-  color: #146335;
+  background: var(--color-success-surface);
+  color: var(--color-success);
 }
 .payin-status-3 {
-  background: #fde3e6;
-  color: #962134;
+  background: var(--color-error-surface);
+  color: var(--color-error);
 }
 .payin-request-page .master-action {
   white-space: nowrap;

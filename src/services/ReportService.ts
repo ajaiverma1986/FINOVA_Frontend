@@ -29,7 +29,22 @@ export interface AdminDashboardRequest {
   ReportDate?: string | null;
 }
 
+export interface UserMasterListReportRequest {
+  FromDate?: string | null;
+  ToDate?: string | null;
+  Status?: number | null;
+  FreeTextSearch?: string | null;
+  UserTypeId?: number | null;
+  ParentId?: number | null;
+  PageNumber: number;
+  PageSize: number;
+  SortColumn?: string | null;
+  SortDirection?: string | null;
+}
+
 export const ReportService = {
+  getUserMasterListReport: (body: UserMasterListReportRequest, signal?: AbortSignal) =>
+    request('/Report/GetUserMasterListReport', { method: 'POST', body, signal }),
   transactionDetailsReport: (body: TransactionReportRequest, signal?: AbortSignal) =>
     request('/Report/TransactionDetailsReport', { method: 'POST', body, signal }),
   adminDashboard: (body: AdminDashboardRequest = {}, signal?: AbortSignal) =>

@@ -187,9 +187,9 @@ export default function PermissionMasterComponent() {
           {!pagedRows.length ? <tr><td colSpan={columns.length + 1}>No records match the selected filters.</td></tr> : pagedRows.map((row, index) => <tr key={rowId(row) || index}>
             {columns.map((column) => <td key={column}>{String(getValue(row, column) ?? '-')}</td>)}
             <td><div className="master-actions">
-              <button type="button" className="master-action view" title="View permission" aria-label="View permission" onClick={() => open('view', row)}><VisibilityOutlinedIcon fontSize="small" /> View</button>
-              <button type="button" className="master-action edit" title="Edit permission" aria-label="Edit permission" onClick={() => open('edit', row)}><EditOutlinedIcon fontSize="small" /> Edit</button>
-              <button type="button" className="master-action delete" title="Delete permission" aria-label="Delete permission" onClick={() => { if (window.confirm('Delete this permission?')) remove.mutate(rowId(row)); }}><DeleteOutlineIcon fontSize="small" /> Delete</button>
+              <button type="button" className="master-action view" title="View permission" aria-label="View permission" onClick={() => open('view', row)} data-grid-icon="true"><VisibilityOutlinedIcon fontSize="small" /></button>
+              <button type="button" className="master-action edit" title="Edit permission" aria-label="Edit permission" onClick={() => open('edit', row)} data-grid-icon="true"><EditOutlinedIcon fontSize="small" /></button>
+              <button type="button" className="master-action delete" title="Delete permission" aria-label="Delete permission" onClick={() => { if (window.confirm('Delete this permission?')) remove.mutate(rowId(row)); }} data-grid-icon="true"><DeleteOutlineIcon fontSize="small" /></button>
             </div></td>
           </tr>)}
         </tbody></table></div>

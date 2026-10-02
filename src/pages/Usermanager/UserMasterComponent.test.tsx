@@ -88,9 +88,7 @@ it('creates users without sending an ID and allows another create afterward', as
     fireEvent.change(within(dialog).getByLabelText('Gender'), { target: { value: '1' } });
     fireEvent.change(within(dialog).getByLabelText('User type'), { target: { value: '3' } });
     fireEvent.change(within(dialog).getByLabelText('User Name'), { target: { value: name } });
-    fireEvent.change(within(dialog).getByLabelText('Password'), {
-      target: { value: 'test-password' },
-    });
+    expect(within(dialog).queryByLabelText('Password')).toBeNull();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Next' }));
     await within(dialog).findByLabelText('Address type');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
@@ -99,6 +97,7 @@ it('creates users without sending an ID and allows another create afterward', as
   expect(create).toHaveBeenCalledTimes(2);
   expect(create.mock.calls[0][0]).not.toHaveProperty('UserMasterID');
   expect(create.mock.calls[0][0]).toMatchObject({
+    Password: 'password',
     IsPasswordExpired: false,
     IsLocked: false,
     LockedTill: null,
@@ -120,6 +119,49 @@ it('updates only the fields accepted by the update endpoint', async () => {
   expect(update.mock.calls[0][0]).toMatchObject({ UserMasterID: 7, FirstName: 'Updated' });
   expect(update.mock.calls[0][0]).not.toHaveProperty('Password');
   expect(update.mock.calls[0][0]).not.toHaveProperty('IsLocked');
+});
+it('requires a username only for Admin and creates other users without one', async () => {
+  setup();
+  vi.mocked(MasterDataService.getActiveUserTypes).mockResolvedValue({
+    Result: [
+      { UserTypeId: 1, UserTypeName: 'Admin' },
+      { UserTypeId: 3, UserTypeName: 'API User' },
+    ],
+  });
+  const create = vi
+    .spyOn(UserMgrService, 'createUserMaster')
+    .mockResolvedValue({ Result: { UserMasterID: 9 } });
+  fireEvent.click(await screen.findByRole('button', { name: 'Create user' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Create user' });
+  await within(dialog).findByRole('option', { name: 'Admin' });
+  await within(dialog).findByRole('option', { name: 'Example Org' });
+  const username = within(dialog).getByLabelText('User Name') as HTMLInputElement;
+  const type = within(dialog).getByLabelText('User type');
+  fireEvent.change(type, { target: { value: '1' } });
+  expect(username.required).toBe(true);
+  expect(username.checkValidity()).toBe(false);
+  fireEvent.change(username, { target: { value: '   ' } });
+  fireEvent.submit(username.closest('form')!);
+  await within(dialog).findByText('Enter a user name for Admin.');
+  expect(create).not.toHaveBeenCalled();
+  fireEvent.change(type, { target: { value: '3' } });
+  fireEvent.change(username, { target: { value: '' } });
+  expect(username.required).toBe(false);
+  fireEvent.change(within(dialog).getByLabelText('Organization'), { target: { value: '4' } });
+  fireEvent.change(within(dialog).getByLabelText('Gender'), { target: { value: '1' } });
+  fireEvent.change(within(dialog).getByRole('combobox', { name: 'Title' }), {
+    target: { value: 'Mrs.' },
+  });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Next' }));
+  await within(dialog).findByLabelText('Address type');
+  expect(create).toHaveBeenCalledWith(
+    expect.objectContaining({
+      UserName: '',
+      Password: 'password',
+      Title: 'Mrs.',
+    }),
+  );
+  expect(UserMgrService.getUserMasterByUserName).not.toHaveBeenCalled();
 });
 it('keeps the unlock action for the selected user', async () => {
   setup();
@@ -294,6 +336,31 @@ it('locks detail tabs until a new user has been saved', async () => {
   expect((within(dialog).getByRole('tab', { name: 'User' }) as HTMLButtonElement).disabled).toBe(
     false,
   );
+});
+it('shows Parent Mapping only for Distributors and Retailers and locks it until saved', async () => {
+  setup();
+  vi.mocked(MasterDataService.getActiveUserTypes).mockResolvedValue({
+    Result: [
+      { UserTypeId: 1, UserTypeName: 'Admin' },
+      { UserTypeId: 3, UserTypeName: 'Master Distributor' },
+      { UserTypeId: 4, UserTypeName: 'Distributor' },
+      { UserTypeId: 5, UserTypeName: 'Retailer' },
+    ],
+  });
+  fireEvent.click(await screen.findByRole('button', { name: 'Create user' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Create user' });
+  await within(dialog).findByRole('option', { name: 'Retailer' });
+  const type = within(dialog).getByLabelText('User type');
+  for (const id of ['1', '3']) {
+    fireEvent.change(type, { target: { value: id } });
+    expect(within(dialog).queryByRole('tab', { name: 'Parent Mapping' })).toBeNull();
+  }
+  for (const id of ['4', '5']) {
+    fireEvent.change(type, { target: { value: id } });
+    expect(
+      (within(dialog).getByRole('tab', { name: 'Parent Mapping' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+  }
 });
 
 it('loads pincode areas and clears the selected area when the pincode changes', async () => {

@@ -1,3 +1,4 @@
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useRef, useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
@@ -343,11 +344,8 @@ function PayinForm({ userId }: { userId: number }) {
               <button
                 type="button"
                 className="master-action view"
-                style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}
                 onClick={() => setPreview({ FileUrl: row.receipt, RequestID: row['Request ID'] })}
-              >
-                View receipt
-              </button>
+               data-grid-icon="true" aria-label="View receipt" title="View receipt"><VisibilityOutlinedIcon fontSize="small" /></button>
             ) : null
           }
         />
@@ -389,9 +387,7 @@ function PayinForm({ userId }: { userId: number }) {
                             className="master-action view"
                             style={{ whiteSpace: 'nowrap' }}
                             onClick={() => setAccountPreview(account)}
-                          >
-                            View document
-                          </button>
+                           data-grid-icon="true" aria-label="View document" title="View document"><VisibilityOutlinedIcon fontSize="small" /></button>
                         )}
                       </td>
                     </tr>

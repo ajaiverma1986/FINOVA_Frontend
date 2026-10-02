@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 export const routeComponents = {
+  '/Dashboard/CodePrefix': lazy(() => import('../pages/Configuration/CodePrefixPage')),
   '/Dashboard/CreatePayinRequest': lazy(() => import('../pages/Wallet/CreatePayinRequestPage')),
   '/Dashboard/CompanyAccount': lazy(() => import('../pages/Wallet/CompanyAccountPage')),
   '/Dashboard/TransferRequestList': lazy(() => import('../pages/Repost/TransferRequestListPage')),
@@ -124,6 +125,7 @@ export const routeComponents = {
   '/Dashboard/MenuMgr': lazy(() => import('../pages/AppManager/MenuMasterPage')),
   '/Dashboard/ModuleMgr': lazy(() => import('../pages/AppManager/ModuleMasterPage')),
   '/Dashboard/TransactionDetailReport': lazy(() => import('../pages/Reports/TransactionReportPage')),
+  '/Dashboard/UserListReport': lazy(() => import('../pages/Reports/UserListReportPage')),
   '/Dashboard/stmtrpt': lazy(() => import('../pages/Reports/UsrStatementPage')),
   '/Dashboard/payinReport': lazy(() => import('../pages/Reports/PayinRequestReportPage')),
   '/Dashboard/Commdistr': lazy(() => import('../pages/Configuration/DistributionCommissionPage')),
