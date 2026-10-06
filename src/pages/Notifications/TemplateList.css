@@ -6,7 +6,7 @@
 }
 
 .template-list .template-action {
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.82rem;
   min-width: 4.25rem;
   padding: 0.5rem 0.75rem;
@@ -27,37 +27,37 @@
 }
 
 .template-list .template-action-view {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background: var(--color-info-surface);
+  border-color: var(--color-border);
+  color: var(--color-info);
 }
 
 .template-list .template-action-edit {
-  background: #f0fdfa;
-  border-color: #99f6e4;
-  color: #0f766e;
+  background: var(--color-hover);
+  border-color: var(--color-border);
+  color: var(--color-primary);
 }
 
 .template-list .template-action-delete {
-  background: #fff1f2;
-  border-color: #fecdd3;
-  color: #b91c1c;
+  background: var(--color-error-surface);
+  border-color: var(--color-border);
+  color: var(--color-error);
 }
 
 .template-list .template-status {
-  border-radius: 999px;
+  border-radius: var(--border-radius-lg);
   display: inline-block;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: var(--typography-font-weight-bold);
   padding: 0.25rem 0.6rem;
 }
 
 .template-list .template-status-active {
-  background: #ccfbf1;
-  color: #0f766e;
+  background: var(--color-selected);
+  color: var(--color-primary);
 }
 
 .template-list .template-status-inactive {
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
 }

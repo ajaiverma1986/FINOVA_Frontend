@@ -1,0 +1,42 @@
+import type { AppTheme } from '../theme.types';
+import { lightTheme } from './light.theme';
+
+export const darkTheme: AppTheme = {
+  ...lightTheme,
+  name: 'Dark',
+  mode: 'dark',
+  colors: {
+    primary: '#78d5cf',
+    onPrimary: '#102b30',
+    secondary: '#b1c6d4',
+    accent: '#8ebeff',
+    background: '#101923',
+    surface: '#192632',
+    surfaceMuted: '#233442',
+    textPrimary: '#edf4f8',
+    textSecondary: '#b5c5d1',
+    border: '#526878',
+    success: '#88ddb0',
+    warning: '#ffda85',
+    error: '#ffacac',
+    info: '#9bc3ff',
+    successSurface: '#173d2c',
+    warningSurface: '#42351a',
+    errorSurface: '#48252a',
+    infoSurface: '#1c3450',
+    hover: '#29434c',
+    selected: '#30545d',
+    focus: '#8ebeff',
+    overlay: '#00000099',
+  },
+  navigation: {
+    sidebarBackground: '#101e29',
+    sidebarText: '#d7e6ef',
+    sidebarActiveBackground: '#30545d',
+    sidebarActiveText: '#ffffff',
+    sidebarHoverBackground: '#233b49',
+    headerBackground: '#192632',
+    headerText: '#edf4f8',
+  },
+  shadow: { sm: '0 2px 6px #00000040', md: '0 4px 15px #00000050', lg: '0 12px 35px #00000066' },
+};

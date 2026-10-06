@@ -32,14 +32,15 @@ export default function ConfigFields({
         const initialKey = Object.keys(initial).find(
           (key) => key.toLowerCase() === field.key.toLowerCase(),
         );
-        const value = initialKey ? initial[initialKey] : field.key === 'Status' ? 1 : '';
+        const value = initialKey ? initial[initialKey] : field.key === 'Status' && !field.nullable ? 1 : '';
         const kind = configLookupKind(field.key);
         if (kind) return <ConfigLookup key={field.key} field={field} initial={value} kind={kind} />;
         return (
           <label className="master-field" key={field.key}>
             {title(field.key)}
             {field.key === 'Status' ? (
-              <select name={field.key} defaultValue={String(value ?? 1)}>
+              <select name={field.key} defaultValue={String(value ?? '')}>
+                {field.nullable && <option value="">All statuses</option>}
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
               </select>

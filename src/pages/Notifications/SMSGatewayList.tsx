@@ -84,14 +84,20 @@ export default function SMSGatewayList({ initialMessage = '' }: { initialMessage
                 <Link
                   className="gateway-action gateway-action-view"
                   to={`${notificationPath}/View?id=${row.SMSGatewayID}`}
+                  data-grid-icon="true"
+                  title="View"
+                  aria-label="View"
                 >
-                  <VisibilityOutlinedIcon fontSize="small" /> View
+                  <VisibilityOutlinedIcon fontSize="small" />
                 </Link>
                 <Link
                   className="gateway-action gateway-action-edit"
                   to={`${notificationPath}/Edit?id=${row.SMSGatewayID}`}
+                  data-grid-icon="true"
+                  title="Edit"
+                  aria-label="Edit"
                 >
-                  <EditOutlinedIcon fontSize="small" /> Edit
+                  <EditOutlinedIcon fontSize="small" />
                 </Link>
                 <button
                   type="button"
@@ -101,8 +107,11 @@ export default function SMSGatewayList({ initialMessage = '' }: { initialMessage
                     remove.reset();
                     setDeleting(row);
                   }}
+                  data-grid-icon="true"
+                  title="Delete"
+                  aria-label="Delete"
                 >
-                  <DeleteOutlineIcon fontSize="small" /> Delete
+                  <DeleteOutlineIcon fontSize="small" />
                 </button>
               </div>
             );

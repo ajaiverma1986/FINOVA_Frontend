@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { passwordRecovery } from '../services/passwordRecovery';
@@ -7,10 +7,25 @@ import { ErrorState } from './Status';
 export function ForgotPasswordOtp({ usercode }: { usercode: string }) {
   const navigate = useNavigate();
   const [error, setError] = useState<unknown>();
+  const [resendAt, setResendAt] = useState(() => Date.now() + 60_000);
+  const [secondsRemaining, setSecondsRemaining] = useState(60);
+  const [isResending, setIsResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  useEffect(() => {
+    const updateCountdown = () => {
+      const remaining = Math.max(0, Math.ceil((resendAt - Date.now()) / 1000));
+      setSecondsRemaining(remaining);
+      if (remaining === 0) clearInterval(timer);
+    };
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+    return () => clearInterval(timer);
+  }, [resendAt]);
   const {
     register,
     handleSubmit,
     getValues,
+    resetField,
     formState: { errors, isSubmitting },
   } = useForm<{
     otp: string;
@@ -24,17 +39,17 @@ export function ForgotPasswordOtp({ usercode }: { usercode: string }) {
       <h1>Reset password</h1>
       <p>Enter the 6-digit OTP sent for {usercode} and choose your new password.</p>
       <form
-        onSubmit={handleSubmit(async ({ otp, password }) => {
+        onSubmit={handleSubmit(async ({ otp, password, confirmPassword }) => {
           setError(undefined);
           try {
-            await passwordRecovery.resetPassword({ usercode, otp, password });
+            await passwordRecovery.resetPassword({ usercode, otp, password, confirmPassword });
             navigate('/login', { replace: true, state: { passwordReset: true } });
           } catch (cause) {
             setError(cause);
           }
         })}
       >
-        <fieldset disabled={isSubmitting}>
+        <fieldset disabled={isSubmitting || isResending}>
           <label className="field">
             6-digit OTP
             <input
@@ -93,11 +108,38 @@ export function ForgotPasswordOtp({ usercode }: { usercode: string }) {
           </button>
         </fieldset>
       </form>
-      <p className="auth-switch">
-        <Link to="/forget" replace>
-          Request a new OTP
-        </Link>
-      </p>
+      <div className="auth-switch">
+        {secondsRemaining > 0 && (
+          <p role="timer" aria-label="Time until you can resend OTP">
+            Resend OTP in {Math.floor(secondsRemaining / 60)}:
+            {String(secondsRemaining % 60).padStart(2, '0')}
+          </p>
+        )}
+        {resendSuccess && <p role="status">OTP sent successfully.</p>}
+        <button
+          type="button"
+          disabled={secondsRemaining > 0 || isResending || isSubmitting}
+          onClick={async () => {
+            if (Date.now() < resendAt || isResending || isSubmitting) return;
+            setIsResending(true);
+            setError(undefined);
+            setResendSuccess(false);
+            try {
+              await passwordRecovery.sendOtp(usercode);
+              resetField('otp');
+              setSecondsRemaining(60);
+              setResendAt(Date.now() + 60_000);
+              setResendSuccess(true);
+            } catch (cause) {
+              setError(cause);
+            } finally {
+              setIsResending(false);
+            }
+          }}
+        >
+          {isResending ? 'Sending OTP…' : 'Resend OTP'}
+        </button>
+      </div>
       <p className="auth-switch">
         <Link to="/login">Back to sign in</Link>
       </p>

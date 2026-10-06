@@ -1,5 +1,8 @@
 import {
   ConfigService,
+  type CreateCodePrefixRequest,
+  type UpdateCodePrefixRequest,
+  type GetCodePrefixRequest,
   type GetServicePolicyRequest,
   type AddTxnslabRequest,
   type CreateTopupChargeRequest,
@@ -17,6 +20,51 @@ export type ConfigOperation = {
   run: (values: Values, signal?: AbortSignal) => Promise<ApiResponse<unknown>>;
 };
 export const configOperations = {
+  CreateCodePrefix: {
+    fields: [
+      { key: 'OrganizationId', type: 'integer', nullable: false },
+      { key: 'ApplicationId', type: 'integer', nullable: false },
+      { key: 'CodePrefix', type: 'string', nullable: true },
+      { key: 'CodeLngth', type: 'string', nullable: true },
+      { key: 'Status', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.createCodePrefix(values as unknown as CreateCodePrefixRequest, signal),
+  },
+  UpdateCodePrefix: {
+    fields: [
+      { key: 'Id', type: 'integer', nullable: false },
+      { key: 'OrganizationId', type: 'integer', nullable: false },
+      { key: 'ApplicationId', type: 'integer', nullable: false },
+      { key: 'CodePrefix', type: 'string', nullable: true },
+      { key: 'CodeLngth', type: 'string', nullable: true },
+      { key: 'Status', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.updateCodePrefix(values as unknown as UpdateCodePrefixRequest, signal),
+  },
+  DeleteCodePrefix: {
+    fields: [{ key: 'Id', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) => ConfigService.deleteCodePrefix(Number(values.Id), signal),
+  },
+  GetCodePrefixes: {
+    fields: [
+      { key: 'Id', type: 'integer', nullable: true },
+      { key: 'OrganizationId', type: 'integer', nullable: true },
+      { key: 'ApplicationId', type: 'integer', nullable: true },
+      { key: 'CodePrefix', type: 'string', nullable: true },
+      { key: 'Status', type: 'integer', nullable: true },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.getCodePrefixes({ Id: null, OrganizationId: null, ApplicationId: null, CodePrefix: null, Status: null, ...values } as GetCodePrefixRequest, signal),
+  },
+  GetActiveCodePrefix: {
+    fields: [
+      { key: 'OrganizationId', type: 'integer', nullable: false },
+      { key: 'ApplicationId', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) => ConfigService.getActiveCodePrefix(Number(values.OrganizationId), Number(values.ApplicationId), signal),
+  },
   GetServicePolicy: {
     fields: [
       { key: 'ServiceId', type: 'integer', nullable: false },
@@ -274,6 +322,18 @@ export type ConfigResource = {
   searches: { label: string; operation: OperationKey }[];
 };
 export const configResources: Record<string, ConfigResource> = {
+  codePrefix: {
+    title: 'Code prefixes',
+    singular: 'code prefix',
+    id: 'Id',
+    list: 'GetCodePrefixes',
+    active: 'GetActiveCodePrefix',
+    create: 'CreateCodePrefix',
+    update: 'UpdateCodePrefix',
+    detail: 'GetCodePrefixes',
+    remove: 'DeleteCodePrefix',
+    searches: [],
+  },
   topup: {
     title: 'Top-up charges',
     singular: 'top-up charge',

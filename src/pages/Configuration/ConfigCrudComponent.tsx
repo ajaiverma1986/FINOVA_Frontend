@@ -96,7 +96,7 @@ export default function ConfigCrudComponent({ resourceKey }: { resourceKey: stri
             >
               <option value={resource.list}>All records</option>
               <option value={resource.active}>Active records</option>
-              <option value={resource.detail}>ID</option>
+              {resource.detail !== resource.list && <option value={resource.detail}>ID</option>}
               {resource.searches.map((item) => (
                 <option key={item.operation} value={item.operation}>
                   {item.label}
@@ -138,28 +138,22 @@ export default function ConfigCrudComponent({ resourceKey }: { resourceKey: stri
                   className="master-action view"
                   disabled={!id}
                   onClick={() => setEditor({ mode: 'view', id })}
-                >
-                  <VisibilityOutlinedIcon fontSize="small" />
-                  View
-                </button>
+                 data-grid-icon="true" aria-label="View" title="View">
+                  <VisibilityOutlinedIcon fontSize="small" /></button>
                 <button
                   type="button"
                   className="master-action edit"
                   disabled={!id}
                   onClick={() => setEditor({ mode: 'edit', id })}
-                >
-                  <EditOutlinedIcon fontSize="small" />
-                  Edit
-                </button>
+                 data-grid-icon="true" aria-label="Edit" title="Edit">
+                  <EditOutlinedIcon fontSize="small" /></button>
                 <button
                   type="button"
                   className="master-action delete"
                   disabled={!id}
                   onClick={() => setEditor({ mode: 'delete', id })}
-                >
-                  <DeleteOutlineIcon fontSize="small" />
-                  Delete
-                </button>
+                 data-grid-icon="true" aria-label="Delete" title="Delete">
+                  <DeleteOutlineIcon fontSize="small" /></button>
               </div>
             );
           }}

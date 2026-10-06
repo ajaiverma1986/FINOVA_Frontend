@@ -1,3 +1,4 @@
+import { ThemeSelector } from '../theme/ThemeSelector';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -19,7 +20,10 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         </div>
         <small>FINOVA partner portal</small>
       </section>
-      <main className="auth-main">{children}</main>
+      <main className="auth-main">
+        <ThemeSelector />
+        {children}
+      </main>
     </div>
   );
 }

@@ -309,17 +309,15 @@ function MasterList({ resourceKey }: { resourceKey: MasterResourceKey }) {
                               <Link
                                 className="master-action view"
                                 to={`${resource.basePath}/View?id=${id}`}
-                              >
-                                <VisibilityOutlinedIcon fontSize="small" /> View
-                              </Link>
+                               data-grid-icon="true" aria-label="View" title="View">
+                                <VisibilityOutlinedIcon fontSize="small" /></Link>
                             )}
                             {id && (
                               <Link
                                 className="master-action edit"
                                 to={`${resource.basePath}/Edit?id=${id}`}
-                              >
-                                <EditOutlinedIcon fontSize="small" /> Edit
-                              </Link>
+                               data-grid-icon="true" aria-label="Edit" title="Edit">
+                                <EditOutlinedIcon fontSize="small" /></Link>
                             )}
                             {id && (
                               <button
@@ -328,9 +326,8 @@ function MasterList({ resourceKey }: { resourceKey: MasterResourceKey }) {
                                   remove.reset();
                                   setDeleting(row);
                                 }}
-                              >
-                                <DeleteOutlineIcon fontSize="small" /> Delete
-                              </button>
+                               data-grid-icon="true" aria-label="Delete" title="Delete">
+                                <DeleteOutlineIcon fontSize="small" /></button>
                             )}
                           </div>
                         </td>
@@ -487,6 +484,35 @@ function MasterForm({
   const cache = useQueryClient();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<unknown>();
+  const userTypes = useQuery({
+    queryKey: ['master-data', 'userType', 'active-options'],
+    enabled: resourceKey === 'kycType',
+    queryFn: async ({ signal }) => records((await MasterDataService.getActiveUserTypes(signal)).Result),
+    retry: false,
+  });
+  const companyTypes = useQuery({
+    queryKey: ['master-data', 'companyType', 'active-options'],
+    enabled: resourceKey === 'kycType',
+    queryFn: async ({ signal }) => records((await MasterDataService.getActiveCompanyTypes(signal)).Result),
+    retry: false,
+  });
+  const [kycTypeIds, setKycTypeIds] = useState({
+    UserTypeID: String(rowId(initial ?? {}, 'UserTypeID') ?? ''),
+    CompanyTypeId: String(rowId(initial ?? {}, 'CompanyTypeId') ?? rowId(initial ?? {}, 'CompnayTypeId') ?? ''),
+  });
+  const kycLookups = [
+    { field: 'UserTypeID' as const, label: 'User type', query: userTypes, id: 'UserTypeId', name: 'UserTypeName' },
+    { field: 'CompanyTypeId' as const, label: 'Company type', query: companyTypes, id: 'CompanyTypeId', name: 'CompanyTypeName' },
+  ].map(lookup => ({
+    ...lookup,
+    options: (lookup.query.data ?? []).map(row => ({
+      id: rowId(row, lookup.id) ?? (lookup.field === 'CompanyTypeId' ? rowId(row, 'CompnayTypeId') : null),
+      name: String(row[Object.keys(row).find(key => key.toLowerCase() === lookup.name.toLowerCase()) ?? lookup.name] ?? ''),
+    })).filter(option => option.id !== null).sort((a, b) => a.name.localeCompare(b.name)),
+  }));
+  const kycReady = resourceKey !== 'kycType' || kycLookups.every(lookup =>
+    lookup.query.isSuccess && lookup.options.some(option => String(option.id) === kycTypeIds[lookup.field]),
+  );
   const banks = useQuery({
     queryKey: ['master-data', 'bank', 'active-options'],
     enabled: resourceKey === 'paymentAccount',
@@ -502,7 +528,7 @@ function MasterForm({
     (banks.isSuccess && bankOptions.some(bank => String(bank.id) === bankId));
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending || !bankReady) return;
+    if (pending || !bankReady || !kycReady) return;
     setPending(true);
     setError(undefined);
     const data = new FormData(event.currentTarget);
@@ -539,10 +565,26 @@ function MasterForm({
         </div>
       </div>
       <div className="master-form-grid">
-        {resource.fields.map((item) => (
+        {resource.fields.map((item) => {
+          const lookup = resourceKey === 'kycType' ? kycLookups.find(lookup => lookup.field === item.name) : undefined;
+          return (
           <label className="master-field" key={item.name}>
-            {resourceKey === 'paymentAccount' && item.name === 'BankID' ? 'Bank' : item.label}
-            {resourceKey === 'paymentAccount' && item.name === 'BankID' ? (
+            {lookup ? lookup.label : resourceKey === 'paymentAccount' && item.name === 'BankID' ? 'Bank' : item.label}
+            {lookup ? (
+              <>
+                <select name={item.name} required={item.required} value={kycTypeIds[lookup.field]}
+                  disabled={pending || lookup.query.isPending || lookup.query.isError}
+                  onChange={event => setKycTypeIds(current => ({ ...current, [lookup.field]: event.target.value }))}>
+                  <option value="" disabled>{lookup.query.isPending ? 'Loading...' : `Select ${lookup.label.toLowerCase()}`}</option>
+                  {kycTypeIds[lookup.field] && !lookup.options.some(option => String(option.id) === kycTypeIds[lookup.field]) && (
+                    <option value={kycTypeIds[lookup.field]} disabled>Current selection unavailable — select an active type</option>
+                  )}
+                  {lookup.options.map(option => <option key={option.id} value={option.id!}>{option.name}</option>)}
+                </select>
+                {lookup.query.isSuccess && !lookup.options.length && <small>No active {lookup.label.toLowerCase()} options available.</small>}
+                {lookup.query.isError && <ErrorState error={lookup.query.error} retry={() => void lookup.query.refetch()} />}
+              </>
+            ) : resourceKey === 'paymentAccount' && item.name === 'BankID' ? (
               <>
                 <select name="BankID" required value={bankId} disabled={banks.isPending || banks.isError}
                   onChange={event => setBankId(event.target.value)}>
@@ -566,12 +608,12 @@ function MasterForm({
               defaultValue={String(initial?.[item.name] ?? (item.name === 'Status' ? 1 : ''))}
             />}
           </label>
-        ))}
+        );})}
       </div>
       {error !== undefined && <ErrorState error={error} />}
       {resourceKey === 'paymentAccount' && banks.isError && <ErrorState error={banks.error} retry={() => void banks.refetch()} />}
       <div className="master-form-actions">
-        <button disabled={pending || !bankReady}>
+        <button disabled={pending || !bankReady || !kycReady}>
           {pending
             ? 'Saving…'
             : id === null

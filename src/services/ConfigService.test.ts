@@ -6,6 +6,16 @@ afterEach(() => vi.clearAllMocks());
 // Request contracts captured from the Config controller Swagger document.
 const cases: { name: string; values: Record<string, string | number | null>; url: string; method: string; body?: Record<string, string | number | null> }[] = [
   {
+    name: 'CreateCodePrefix',
+    values: { OrganizationId: 2, ApplicationId: 3, CodePrefix: 'FIN', CodeLngth: '08', Status: 1 },
+    url: '/Config/CreateCodePrefix', method: 'POST',
+    body: { OrganizationId: 2, ApplicationId: 3, CodePrefix: 'FIN', CodeLngth: '08', Status: 1 },
+  },
+  {
+    name: 'DeleteCodePrefix', values: { Id: 7 },
+    url: '/Config/DeleteCodePrefix/7', method: 'DELETE',
+  },
+  {
     name: 'GetServicePolicy',
     values: {
       ServiceId: 2,
