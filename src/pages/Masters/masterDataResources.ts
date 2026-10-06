@@ -128,7 +128,10 @@ export const masterDataResources = {
     idQuery: 'compnayTypeId',
     listPath: '/MasterData/GetAllCompanyTypes',
     activePath: '/MasterData/GetActiveCompanyTypes',
-    fields: [field('CompanyTypeName', 'Company type name'), field('Status', 'Status', 'number')],
+    fields: [
+      field('CompanyTypeName', 'Company type name'),
+      { ...field('Status', 'Status', 'number'), options: [{ value: 1, label: 'Active' }, { value: 0, label: 'Inactive' }] },
+    ],
   }),
   agency: resource({
     key: 'agency',
@@ -143,7 +146,7 @@ export const masterDataResources = {
     fields: [
       field('AgencyCode', 'Agency code'),
       field('AgencyName', 'Agency name'),
-      field('Status', 'Status', 'number'),
+      { ...field('Status', 'Status', 'number'), options: [{ value: 1, label: 'Active' }, { value: 0, label: 'Inactive' }] },
     ],
   }),
   addressType: resource({
@@ -156,7 +159,10 @@ export const masterDataResources = {
     idQuery: 'addressTypeId',
     listPath: '/MasterData/GetAllAddressTypes',
     activePath: '/MasterData/GetActiveAddressTypes',
-    fields: [field('AddressTypeName', 'Address type name'), field('Status', 'Status', 'number')],
+    fields: [
+      field('AddressTypeName', 'Address type name'),
+      { ...field('Status', 'Status', 'number'), options: [{ value: 1, label: 'Active' }, { value: 0, label: 'Inactive' }] },
+    ],
   }),
   bank: resource({
     key: 'bank',
@@ -168,7 +174,10 @@ export const masterDataResources = {
     idQuery: 'bankID',
     listPath: '/MasterData/GetAllBanks',
     activePath: '/MasterData/GetActiveBanks',
-    fields: [field('BankName', 'Bank name'), field('Status', 'Status', 'number')],
+    fields: [
+      field('BankName', 'Bank name'),
+      { ...field('Status', 'Status', 'number'), options: [{ value: 1, label: 'Active' }, { value: 0, label: 'Inactive' }] },
+    ],
   }),
   state: resource({
     key: 'state',
@@ -262,7 +271,7 @@ export const masterDataResources = {
     fields: [
       field('AgencyName', 'Agency name'),
       field('ServiceTypeName', 'Service type name'),
-      field('Status', 'Status', 'number'),
+      { ...field('Status', 'Status', 'number'), options: [{ value: 1, label: 'Active' }, { value: 2, label: 'Inactive' }] },
     ],
   }),
   paymentChanel: resource({

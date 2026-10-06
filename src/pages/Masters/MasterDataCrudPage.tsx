@@ -526,9 +526,51 @@ function MasterForm({
   const [bankId, setBankId] = useState(String(initial?.BankID ?? initial?.BankId ?? ''));
   const bankReady = resourceKey !== 'paymentAccount' ||
     (banks.isSuccess && bankOptions.some(bank => String(bank.id) === bankId));
+  const serviceTypes = useQuery({
+    queryKey: ['master-data', 'serviceType', 'options'],
+    enabled: resourceKey === 'service',
+    queryFn: async ({ signal }) => records((await MasterDataService.getAllServiceTypes(signal)).Result),
+    retry: false,
+  });
+  const serviceTypeOptions = (serviceTypes.data ?? []).map(row => ({
+    id: rowId(row, 'ServiceTypeId') ?? rowId(row, 'ServiceTypeID'),
+    name: String(row[Object.keys(row).find(key => key.toLowerCase() === 'servicetypename') ?? 'ServiceTypeName'] ?? ''),
+  })).filter(option => option.id !== null).sort((a, b) => a.name.localeCompare(b.name));
+  const [selectedServiceTypeId, setServiceTypeId] = useState<string>();
+  const initialServiceTypeId = rowId(initial ?? {}, 'ServiceTypeId');
+  const initialServiceTypeNameKey = Object.keys(initial ?? {}).find(key => key.toLowerCase() === 'servicetypename');
+  const initialServiceTypeName = String(initialServiceTypeNameKey ? initial?.[initialServiceTypeNameKey] ?? '' : '').trim();
+  const matchingServiceTypes = serviceTypeOptions.filter(option =>
+    option.name.trim().toLowerCase() === initialServiceTypeName.toLowerCase(),
+  );
+  const serviceTypeId = selectedServiceTypeId ?? String(initialServiceTypeId ??
+    (initialServiceTypeName && matchingServiceTypes.length === 1 ? matchingServiceTypes[0].id : '') ?? '');
+  const serviceTypeReady = resourceKey !== 'service' ||
+    (serviceTypes.isSuccess && serviceTypeOptions.some(option => String(option.id) === serviceTypeId));
+  const agencies = useQuery({
+    queryKey: ['master-data', 'agency', 'options'],
+    enabled: resourceKey === 'serviceType',
+    queryFn: async ({ signal }) => records((await MasterDataService.getAllAgencies(signal)).Result),
+    retry: false,
+  });
+  const agencyOptions = (agencies.data ?? []).map(row => ({
+    id: rowId(row, 'AgencyId'),
+    name: String(row[Object.keys(row).find(key => key.toLowerCase() === 'agencyname') ?? 'AgencyName'] ?? ''),
+  })).filter(option => option.id !== null).sort((a, b) => a.name.localeCompare(b.name));
+  const [selectedAgencyId, setAgencyId] = useState<string>();
+  const initialAgencyId = rowId(initial ?? {}, 'AgencyId');
+  const initialAgencyNameKey = Object.keys(initial ?? {}).find(key => key.toLowerCase() === 'agencyname');
+  const initialAgencyName = String(initialAgencyNameKey ? initial?.[initialAgencyNameKey] ?? '' : '').trim();
+  const matchingAgencies = agencyOptions.filter(option =>
+    option.name.trim().toLowerCase() === initialAgencyName.toLowerCase(),
+  );
+  const agencyId = selectedAgencyId ?? String(initialAgencyId ??
+    (initialAgencyName && matchingAgencies.length === 1 ? matchingAgencies[0].id : '') ?? '');
+  const agencyReady = resourceKey !== 'serviceType' ||
+    (agencies.isSuccess && agencyOptions.some(option => String(option.id) === agencyId));
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending || !bankReady || !kycReady) return;
+    if (pending || !bankReady || !kycReady || !serviceTypeReady || !agencyReady) return;
     setPending(true);
     setError(undefined);
     const data = new FormData(event.currentTarget);
@@ -538,6 +580,14 @@ function MasterForm({
       body[item.name] = item.nullable && (value === null || value === '')
         ? null : item.type === 'number' ? Number(value) : String(value ?? '').trim();
     });
+    if (resourceKey === 'service') {
+      body.ServiceTypeId = serviceTypeId ? Number(serviceTypeId) : null;
+      delete body.ServiceTypeName;
+    }
+    if (resourceKey === 'serviceType') {
+      body.AgencyId = Number(agencyId);
+      delete body.AgencyName;
+    }
     if (id !== null) body[resource.idField] = id;
     try {
       await request(id === null ? resource.createPath : resource.updatePath, {
@@ -567,9 +617,10 @@ function MasterForm({
       <div className="master-form-grid">
         {resource.fields.map((item) => {
           const lookup = resourceKey === 'kycType' ? kycLookups.find(lookup => lookup.field === item.name) : undefined;
+          const serviceTypeField = resourceKey === 'service' && item.name === 'ServiceTypeName';
           return (
           <label className="master-field" key={item.name}>
-            {lookup ? lookup.label : resourceKey === 'paymentAccount' && item.name === 'BankID' ? 'Bank' : item.label}
+            {lookup ? lookup.label : serviceTypeField ? 'Service type name' : resourceKey === 'paymentAccount' && item.name === 'BankID' ? 'Bank' : item.label}
             {lookup ? (
               <>
                 <select name={item.name} required={item.required} value={kycTypeIds[lookup.field]}
@@ -595,6 +646,33 @@ function MasterForm({
                 </select>
                 {banks.isSuccess && !bankOptions.length && <small>No active banks available.</small>}
               </>
+            ) : resourceKey === 'serviceType' && item.name === 'AgencyName' ? (
+              <>
+                <select name="AgencyId" required value={agencyId}
+                  disabled={pending || agencies.isPending || agencies.isError}
+                  onChange={event => setAgencyId(event.target.value)}>
+                  <option value="" disabled>{agencies.isPending ? 'Loading agencies...' : 'Select agency'}</option>
+                  {agencyId && !agencyOptions.some(option => String(option.id) === agencyId) && (
+                    <option value={agencyId} disabled>Current selection unavailable — select an agency</option>
+                  )}
+                  {agencyOptions.map(option => <option key={option.id} value={option.id!}>{option.name}</option>)}
+                </select>
+                {agencies.isSuccess && !agencyOptions.length && <small>No agencies available.</small>}
+                {agencies.isError && <ErrorState error={agencies.error} retry={() => void agencies.refetch()} />}
+              </>
+            ) : serviceTypeField ? (
+              <>
+                <select name="ServiceTypeId" required value={serviceTypeId} disabled={pending || serviceTypes.isPending || serviceTypes.isError}
+                  onChange={event => setServiceTypeId(event.target.value)}>
+                  <option value="" disabled>{serviceTypes.isPending ? 'Loading service types...' : 'Select service type'}</option>
+                  {serviceTypeId && !serviceTypeOptions.some(option => String(option.id) === serviceTypeId) && (
+                    <option value={serviceTypeId} disabled>Current selection unavailable — select a service type</option>
+                  )}
+                  {serviceTypeOptions.map(option => <option key={option.id} value={option.id!}>{option.name}</option>)}
+                </select>
+                {serviceTypes.isSuccess && !serviceTypeOptions.length && <small>No service types available.</small>}
+                {serviceTypes.isError && <ErrorState error={serviceTypes.error} retry={() => void serviceTypes.refetch()} />}
+              </>
             ) : item.options ? (
               <select name={item.name} required={item.required}
                 defaultValue={String(initial?.[item.name] ?? 1)}>
@@ -613,7 +691,7 @@ function MasterForm({
       {error !== undefined && <ErrorState error={error} />}
       {resourceKey === 'paymentAccount' && banks.isError && <ErrorState error={banks.error} retry={() => void banks.refetch()} />}
       <div className="master-form-actions">
-        <button disabled={pending || !bankReady || !kycReady}>
+        <button disabled={pending || !bankReady || !kycReady || !serviceTypeReady || !agencyReady}>
           {pending
             ? 'Saving…'
             : id === null
