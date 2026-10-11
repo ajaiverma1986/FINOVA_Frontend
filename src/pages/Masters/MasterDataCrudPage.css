@@ -230,6 +230,12 @@
   gap: 22px 28px;
   margin-top: var(--spacing-xl);
 }
+.service-agency-charge-search .master-form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.commission-distribution-setup-search .master-form-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .master-data-page .master-field {
   display: grid;
   gap: var(--spacing-sm);

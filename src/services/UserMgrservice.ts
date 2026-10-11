@@ -196,6 +196,34 @@ export interface UpdateOtherDetailsRequest {
   Status: number;
 }
 
+export interface UpdateUserWalletRequest {
+  UserDetailId: number;
+  UserMasterId: number;
+  AvailableLimit: number;
+  ThresoldLimit: number;
+  RemarkReason: string | null;
+  Status: number;
+}
+
+export interface GetUserWalletsRequest {
+  UserMasterId: number;
+  Status: number;
+}
+
+export interface GetThresoldUserListRequest {
+  OrganizationID: number;
+  UserTypeId: number;
+  ParentId: number;
+  Status: number;
+  SearchText: string;
+}
+
+export interface UpdateUserWalletThresoldLimitRequest {
+  UserMasterId: number;
+  ThresoldLimit: number;
+  ThresoldReason: string;
+}
+
 export interface MapUserParentRequest {
   userMasterID: number;
   parentId: number;
@@ -416,4 +444,24 @@ export const UserMgrService = {
         encodeURIComponent(String(userMasterId)),
       { method: 'GET', signal },
     ),
+  updateUserWallet: (body: UpdateUserWalletRequest, signal?: AbortSignal) =>
+    request('/UserMgr/UpdateUserWallet', { method: 'PUT', body, signal }),
+  deleteUserWallet: (userDetailId: number, signal?: AbortSignal) =>
+    request('/UserMgr/DeleteUserWallet/' + encodeURIComponent(String(userDetailId)), {
+      method: 'DELETE',
+      signal,
+    }),
+  getUserWalletById: (userDetailId: number, signal?: AbortSignal) =>
+    request('/UserMgr/GetUserWalletByID/' + encodeURIComponent(String(userDetailId)), {
+      method: 'GET',
+      signal,
+    }),
+  getUserWallets: (body: GetUserWalletsRequest, signal?: AbortSignal) =>
+    request('/UserMgr/GetUserWallets', { method: 'POST', body, signal }),
+  getThresoldUserList: (body: GetThresoldUserListRequest, signal?: AbortSignal) =>
+    request('/UserMgr/GetThresoldUserList', { method: 'POST', body, signal }),
+  updateUserWalletThresoldLimit: (
+    body: UpdateUserWalletThresoldLimitRequest,
+    signal?: AbortSignal,
+  ) => request('/UserMgr/UpdateUserWalletThresoldLimit', { method: 'PUT', body, signal }),
 };

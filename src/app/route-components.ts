@@ -128,7 +128,9 @@ export const routeComponents = {
   '/Dashboard/UserListReport': lazy(() => import('../pages/Reports/UserListReportPage')),
   '/Dashboard/stmtrpt': lazy(() => import('../pages/Reports/UsrStatementPage')),
   '/Dashboard/payinReport': lazy(() => import('../pages/Reports/PayinRequestReportPage')),
-  '/Dashboard/Commdistr': lazy(() => import('../pages/Configuration/DistributionCommissionPage')),
+  '/Dashboard/ServiceAgencyChargeSetup': lazy(() => import('../pages/Configuration/ServiceAgencyChargeSetup')),
+  '/Dashboard/TdsConfiguration': lazy(() => import('../pages/Configuration/TdsConfiguration')),
+  '/Dashboard/Commdistr': lazy(() => import('../pages/Configuration/CommissionDistributionComponent')),
   '/Dashboard/servicemst': lazy(() => import('../pages/Masters/ServiceListPage')),
   '/Dashboard/servicemst/Create': lazy(() => import('../pages/Masters/ServiceListPage')),
   '/Dashboard/servicemst/View': lazy(() => import('../pages/Masters/ServiceListPage')),
@@ -145,4 +147,7 @@ export const routeComponents = {
   '/Dashboard/PermissionMgr': lazy(() => import('../pages/AppManager/PermissionMasterPage')),
   '/Dashboard/OrgMgr': lazy(() => import('../pages/OrgManager/OrgMgrMasterPage')),
   '/Dashboard/UserMasterlst': lazy(() => import('../pages/Usermanager/UserMasterPage')),
+  '/Dashboard/SetBandLimit': lazy(
+    () => import('../pages/Usermanager/ThresoldUserListPage'),
+  ),
 };

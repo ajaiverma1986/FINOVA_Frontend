@@ -10,7 +10,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
-function setup() {
+function setup(userTypeRows = [{ UserTypeId: 3, UserTypeName: 'API User' }]) {
   vi.spyOn(MasterDataService, 'getActiveChargeDeductionTypes').mockResolvedValue({
     Result: [{ ChargeDeductionId: 2, ChargeDeductionType: 'On transaction' }],
   });
@@ -34,8 +34,9 @@ function setup() {
     Result: [{ AddressTypeId: 2, AddressTypeName: 'Home' }],
   });
   vi.spyOn(MasterDataService, 'getActiveUserTypes').mockResolvedValue({
-    Result: [{ UserTypeId: 3, UserTypeName: 'API User' }],
+    Result: userTypeRows,
   });
+  vi.spyOn(UserMgrService, 'getUserWallets').mockResolvedValue({ Result: [] });
   vi.spyOn(MasterDataService, 'GenderList').mockResolvedValue({
     Result: [{ GenderID: 1, GenderName: 'Male' }],
   });
@@ -216,7 +217,7 @@ it('loads an existing username instead of creating a duplicate', async () => {
 });
 
 it('completes all steps with the same user ID and finishes the dialog', async () => {
-  setup();
+  setup([{ UserTypeId: 3, UserTypeName: 'Master Distributor' }]);
   vi.spyOn(UserMgrService, 'updateUserMaster').mockResolvedValue({ Result: {} });
   vi.spyOn(UserMgrService, 'getUserKycByUserMasterId').mockResolvedValue({ Result: [] });
   vi.spyOn(UserMgrService, 'getUserBankAccountsByUserMasterId').mockResolvedValue({ Result: [] });
@@ -282,7 +283,9 @@ it('completes all steps with the same user ID and finishes the dialog', async ()
   fireEvent.click(within(dialog).getByRole('button', { name: 'Next' }));
   await within(dialog).findByLabelText('PAN card');
   change('PAN card', 'ABCDE1234F');
-  fireEvent.click(within(dialog).getByRole('button', { name: 'Save and finish' }));
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Next' }));
+  await within(dialog).findByRole('table', { name: 'Wallet Detail' });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Finish' }));
   await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   for (const save of [address, kyc, config, other])
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ UserMasterId: 7 }));
@@ -330,9 +333,11 @@ it('locks detail tabs until a new user has been saved', async () => {
   setup();
   fireEvent.click(await screen.findByRole('button', { name: 'Create user' }));
   const dialog = await screen.findByRole('dialog', { name: 'Create user' });
-  for (const name of ['Address', 'KYC', 'Bank account', 'Configuration', 'Other details']) {
+  for (const name of ['Address', 'KYC', 'Other Detail']) {
     expect((within(dialog).getByRole('tab', { name }) as HTMLButtonElement).disabled).toBe(true);
   }
+  expect(within(dialog).queryByRole('tab', { name: 'Bank account' })).toBeNull();
+  expect(within(dialog).queryByRole('tab', { name: 'Configuration' })).toBeNull();
   expect((within(dialog).getByRole('tab', { name: 'User' }) as HTMLButtonElement).disabled).toBe(
     false,
   );
@@ -351,15 +356,60 @@ it('shows Parent Mapping only for Distributors and Retailers and locks it until 
   const dialog = await screen.findByRole('dialog', { name: 'Create user' });
   await within(dialog).findByRole('option', { name: 'Retailer' });
   const type = within(dialog).getByLabelText('User type');
-  for (const id of ['1', '3']) {
-    fireEvent.change(type, { target: { value: id } });
-    expect(within(dialog).queryByRole('tab', { name: 'Parent Mapping' })).toBeNull();
-  }
+  fireEvent.change(type, { target: { value: '1' } });
+  expect(within(dialog).queryByRole('tab', { name: 'Parent Mapping' })).toBeNull();
+  expect(within(dialog).queryByRole('tab', { name: 'Wallet Detail' })).toBeNull();
+  fireEvent.change(type, { target: { value: '3' } });
+  expect(within(dialog).queryByRole('tab', { name: 'Parent Mapping' })).toBeNull();
+  const masterDistributorTabs = Array.from(
+    dialog.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+    (tab) => tab.textContent?.trim().replace(/^\d+/, ''),
+  );
+  expect(masterDistributorTabs.indexOf('Wallet Detail')).toBe(
+    masterDistributorTabs.indexOf('Other Detail') + 1,
+  );
+  expect(
+    (within(dialog).getByRole('tab', { name: 'Wallet Detail' }) as HTMLButtonElement).disabled,
+  ).toBe(true);
   for (const id of ['4', '5']) {
     fireEvent.change(type, { target: { value: id } });
+    const tabNames = Array.from(
+      dialog.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+      (tab) => tab.textContent?.trim().replace(/^\d+/, ''),
+    );
+    expect(tabNames.indexOf('Other Detail')).toBe(tabNames.indexOf('Parent Mapping') + 1);
+    expect(tabNames.indexOf('Wallet Detail')).toBe(tabNames.indexOf('Other Detail') + 1);
     expect(
       (within(dialog).getByRole('tab', { name: 'Parent Mapping' }) as HTMLButtonElement).disabled,
     ).toBe(true);
+    expect(
+      (within(dialog).getByRole('tab', { name: 'Wallet Detail' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+  }
+});
+
+it('shows Bank account and Configuration only for eligible user types', async () => {
+  setup([
+    { UserTypeId: 1, UserTypeName: 'Admin' },
+    { UserTypeId: 3, UserTypeName: 'Master Distributor' },
+    { UserTypeId: 4, UserTypeName: 'Distributor' },
+    { UserTypeId: 5, UserTypeName: 'Retailor' },
+    { UserTypeId: 6, UserTypeName: 'API User' },
+  ]);
+  fireEvent.click(await screen.findByRole('button', { name: 'Create user' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Create user' });
+  await within(dialog).findByRole('option', { name: 'Master Distributor' });
+  const type = within(dialog).getByLabelText('User type');
+
+  for (const id of ['1', '6']) {
+    fireEvent.change(type, { target: { value: id } });
+    expect(within(dialog).queryByRole('tab', { name: 'Bank account' })).toBeNull();
+    expect(within(dialog).queryByRole('tab', { name: 'Configuration' })).toBeNull();
+  }
+  for (const id of ['3', '4', '5']) {
+    fireEvent.change(type, { target: { value: id } });
+    expect(within(dialog).getByRole('tab', { name: 'Bank account' })).toBeDefined();
+    expect(within(dialog).getByRole('tab', { name: 'Configuration' })).toBeDefined();
   }
 });
 

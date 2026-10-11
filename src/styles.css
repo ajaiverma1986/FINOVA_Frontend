@@ -404,6 +404,14 @@ td {
   max-width: 300px;
   overflow-wrap: anywhere;
 }
+table:has(tbody tr > td:last-child button, tbody tr > td:last-child a)
+  thead tr:first-child th:last-child,
+table:has(tbody tr > td:last-child button, tbody tr > td:last-child a)
+  tbody tr > td:last-child {
+  width: 200px;
+  min-width: 200px;
+  white-space: nowrap;
+}
 th:last-child,
 td:last-child {
   border-right: 0;

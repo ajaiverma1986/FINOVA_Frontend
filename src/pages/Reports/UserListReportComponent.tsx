@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ReportService, type UserMasterListReportRequest } from '../../services/ReportService';
 import { ErrorState, Loading } from '../../components/Status';
 import { exportToExcel } from '../../core/exportToExcel';
+import { formatAuditDate } from '../../core/formatAuditDate';
 import { MasterDataService } from '../../services/MasterDataService';
 import { today, value, records } from '../Wallet/payinRequests';
 import { z } from 'zod';
@@ -111,12 +112,7 @@ function reportCell(row: Record<string, unknown>, key: string): string {
       .filter(Boolean)
       .join(' ');
   }
-  const text = String(value(row, key) ?? '');
-  if (key === 'CreatedOn' || key === 'UpdatedOn') {
-    const date = /^(\d{4})-(\d{2})-(\d{2})(?:$|[T\s])/.exec(text);
-    if (date) return `${date[3]}-${date[2]}-${date[1]}`;
-  }
-  return text;
+  return String(formatAuditDate(value(row, key), key) ?? '');
 }
 
 const schema = z.object({

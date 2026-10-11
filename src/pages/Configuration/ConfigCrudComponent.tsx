@@ -1,10 +1,12 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import { DataTable, title, textValue } from '../../components/DataTable';
+import { formatAuditDate } from '../../core/formatAuditDate';
 import { ErrorState, Loading } from '../../components/Status';
+import { MasterDataService } from '../../services/MasterDataService';
 import CreatePanelDialog from '../AppManager/CreatePanelDialog';
 import ConfigFields, { readValues } from './ConfigFields';
 import {
@@ -17,6 +19,74 @@ import {
 import '../Masters/MasterDataCrudPage.css';
 
 type Row = Record<string, unknown>;
+const serviceAgencyChargeLookups = [
+  {
+    source: 'AgencyID',
+    name: 'AgencyName',
+    lookupId: 'AgencyId',
+    lookupName: 'AgencyName',
+    load: (signal?: AbortSignal) => MasterDataService.getAllAgencies(signal),
+  },
+  {
+    source: 'ServiceID',
+    name: 'ServiceName',
+    lookupId: 'ServiceId',
+    lookupName: 'ServiceName',
+    load: (signal?: AbortSignal) => MasterDataService.getAllServices(signal),
+  },
+  {
+    source: 'SlabTypeId',
+    name: 'SlabTypeName',
+    lookupId: 'SlabTypId',
+    lookupName: 'SlabTypeName',
+    load: (signal?: AbortSignal) => MasterDataService.getAllSlabTypes(signal),
+  },
+  {
+    source: 'CalculationTypeId',
+    name: 'CalculationTypeName',
+    lookupId: 'CalculationTypeId',
+    lookupName: 'CalculationTypeName',
+    load: (signal?: AbortSignal) => MasterDataService.getAllCalculationTypes(signal),
+  },
+] as const;
+
+function rowValue(row: Row, key: string) {
+  const match = Object.keys(row).find((name) => name.toLowerCase() === key.toLowerCase());
+  return match ? row[match] : undefined;
+}
+
+function serviceAgencyChargeRows(rows: Row[], lookupRows: Row[][], hiddenColumns: string[] = []) {
+  const lookups = serviceAgencyChargeLookups.map((lookup, index) =>
+    new Map(
+      lookupRows[index].map((row) => [
+        String(rowValue(row, lookup.lookupId)),
+        rowValue(row, lookup.lookupName),
+      ]),
+    ),
+  );
+  const hidden = new Set(hiddenColumns.map((column) => column.toLowerCase()));
+  return rows.map((row) => {
+    const translated: Row = {};
+    for (const [column, value] of Object.entries(row)) {
+      const lookupIndex = serviceAgencyChargeLookups.findIndex(
+        (lookup) => lookup.source.toLowerCase() === column.toLowerCase(),
+      );
+      if (lookupIndex >= 0) {
+        const lookup = serviceAgencyChargeLookups[lookupIndex];
+        const nameKey =
+          Object.keys(row).find((name) => name.toLowerCase() === lookup.name.toLowerCase()) ??
+          lookup.name;
+        const existingName = rowValue(row, lookup.name);
+        translated[nameKey] =
+          existingName ?? lookups[lookupIndex].get(String(value)) ?? '';
+      } else if (!hidden.has(column.toLowerCase())) {
+        translated[column] = value;
+      }
+    }
+    return translated;
+  });
+}
+
 export function configRows(result: unknown): Row[] {
   if (Array.isArray(result))
     return result.filter((row): row is Row => !!row && typeof row === 'object');
@@ -50,19 +120,61 @@ export default function ConfigCrudComponent({ resourceKey }: { resourceKey: stri
       configRows((await configOperations[search.operation].run(search.values, signal)).Result),
     retry: false,
   });
+  const chargeLookups = useQueries({
+    queries: serviceAgencyChargeLookups.map((lookup) => ({
+      queryKey: ['config-lookups', 'service-agency-charge', lookup.name],
+      queryFn: async ({ signal }) => configRows((await lookup.load(signal)).Result),
+      enabled: resourceKey === 'serviceAgencyCharge',
+      retry: false,
+    })),
+  });
   const gridRows = useMemo(() => {
+    if (resourceKey === 'serviceAgencyCharge') {
+      return serviceAgencyChargeRows(
+        list.data ?? [],
+        chargeLookups.map((query) => query.data ?? []),
+        resource.hiddenColumns,
+      );
+    }
     const hidden = new Set(resource.hiddenColumns?.map(column => column.toLowerCase()));
     return list.data?.map(row => Object.fromEntries(
-      Object.entries(row).filter(([column]) => !hidden.has(column.toLowerCase())),
+      Object.entries(row)
+        .filter(([column]) => !hidden.has(column.toLowerCase()))
+        .map(([column, value]) => [
+          column,
+          resourceKey === 'tdsMaster' &&
+          column.toLowerCase() === 'ispanavailable' &&
+          typeof value === 'boolean'
+            ? value
+              ? 'Yes'
+              : 'No'
+            : formatAuditDate(value, column),
+        ]),
     ));
-  }, [list.data, resource.hiddenColumns]);
+  }, [
+    list.data,
+    resource.hiddenColumns,
+    resourceKey,
+    chargeLookups[0]?.data,
+    chargeLookups[1]?.data,
+    chargeLookups[2]?.data,
+    chargeLookups[3]?.data,
+  ]);
+  const failedChargeLookup =
+    resourceKey === 'serviceAgencyCharge'
+      ? chargeLookups.find((query) => query.isError)
+      : undefined;
+  const loadingChargeLookups =
+    resourceKey === 'serviceAgencyCharge' && chargeLookups.some((query) => query.isPending);
   async function saved(message: string) {
     setEditor(null);
     setMessage(message);
     await cache.invalidateQueries({ queryKey: ['config', resourceKey] });
   }
   return (
-    <section className="card master-data-page">
+    <section
+      className={`card master-data-page${resourceKey === 'serviceAgencyCharge' ? ' service-agency-charge-page' : ''}${resourceKey === 'commissionDistributionSetup' ? ' commission-distribution-setup-page' : ''}`}
+    >
       <div className="page-heading">
         <div>
           <p className="eyebrow">Configuration</p>
@@ -78,7 +190,7 @@ export default function ConfigCrudComponent({ resourceKey }: { resourceKey: stri
         </p>
       )}
       <form
-        className="master-form"
+        className={`master-form${resourceKey === 'serviceAgencyCharge' ? ' service-agency-charge-search' : ''}${resourceKey === 'commissionDistributionSetup' ? ' commission-distribution-setup-search' : ''}`}
         onSubmit={(event) => {
           event.preventDefault();
           setSearch({
@@ -95,7 +207,9 @@ export default function ConfigCrudComponent({ resourceKey }: { resourceKey: stri
               onChange={(event) => setSearchOperation(event.target.value as OperationKey)}
             >
               <option value={resource.list}>All records</option>
-              <option value={resource.active}>Active records</option>
+              {resource.active !== resource.list && (
+                <option value={resource.active}>Active records</option>
+              )}
               {resource.detail !== resource.list && <option value={resource.detail}>ID</option>}
               {resource.searches.map((item) => (
                 <option key={item.operation} value={item.operation}>
@@ -121,10 +235,15 @@ export default function ConfigCrudComponent({ resourceKey }: { resourceKey: stri
         </div>
         <ConfigFields key={searchOperation} fields={configOperations[searchOperation].fields} />
       </form>
-      {list.isPending ? (
+      {list.isPending || loadingChargeLookups ? (
         <Loading />
       ) : list.isError ? (
         <ErrorState error={list.error} retry={() => void list.refetch()} />
+      ) : failedChargeLookup ? (
+        <ErrorState
+          error={failedChargeLookup.error}
+          retry={() => void failedChargeLookup.refetch()}
+        />
       ) : (
         <DataTable
           data={gridRows}

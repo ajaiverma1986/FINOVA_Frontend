@@ -33,7 +33,14 @@ export default function UserDetailStep({
 }) {
   const config = detailSteps[index];
   const hasGrid = index >= 0 && index <= 2;
-  const recordName = index === 0 ? 'address' : index === 1 ? 'KYC' : 'bank account';
+  const recordName =
+    index === 0
+      ? 'address'
+      : index === 1
+        ? 'KYC'
+        : index === 2
+          ? 'bank account'
+          : 'other detail';
   const gridName = index === 0 ? 'Addresses' : index === 1 ? 'KYC records' : 'Bank accounts';
   const gridFields = config.fields.filter((field) => field.key !== 'PincodeDataId');
   const [form, setForm] = useState<Row>({ ...config.defaults });

@@ -1,5 +1,44 @@
 import { request } from '../core/api';
 
+export interface GetServiceAgencyChargeRequest {
+  AgencyID: number | null;
+  ServiceID: number | null;
+  SlabTypeId: number | null;
+  CalculationTypeId: number | null;
+  Status: number | null;
+}
+
+export interface CreateServiceAgencyChargeRequest {
+  AgencyID: number | null;
+  ServiceID: number | null;
+  SlabTypeId: number | null;
+  CalculationTypeId: number | null;
+  FromAmount: number;
+  ToAmount: number;
+  CalculationValue: number;
+  Status: number;
+}
+
+export interface UpdateServiceAgencyChargeRequest extends CreateServiceAgencyChargeRequest {
+  MappingId: number;
+}
+
+export interface CreateTdsMasterRequest {
+  IsPanAvailable: boolean;
+  TdsRate: number;
+  Remarks: string | null;
+  Stratus: number;
+}
+
+export interface UpdateTdsMasterRequest extends CreateTdsMasterRequest {
+  TdsRateId: number;
+}
+
+export interface GetTdsMasterRequest {
+  IsPanAvailable: boolean | null;
+  Stratus: number | null;
+}
+
 export interface GetServicePolicyRequest {
   ServiceId: number;
   Agencyid: number;
@@ -60,6 +99,31 @@ export interface UpdateCommissionDistributionRequest {
   Status: number;
 }
 
+export interface CreateCommissionDistributionSetupRequest {
+  AgencyId: number;
+  ServiceId: number;
+  PlanId: number;
+  CalculationTypeId: number;
+  AgancyValue: number;
+  OrgValue: number;
+  MdsValue: number;
+  DSValue: number;
+  AgentValue: number;
+  Status: number;
+}
+
+export interface UpdateCommissionDistributionSetupRequest
+  extends CreateCommissionDistributionSetupRequest {
+  DistributionId: number;
+}
+
+export interface GetCommissionDistributionSetupRequest {
+  AgencyId: number | null;
+  ServiceId: number | null;
+  PlanId: number | null;
+  CalculationTypeId: number | null;
+}
+
 export interface CreateTransactionSlabRequest {
   PlanId: number | null;
   AgencyID: number | null;
@@ -106,6 +170,26 @@ export interface GetCodePrefixRequest {
 }
 
 export const ConfigService = {
+  createTdsMaster: (body: CreateTdsMasterRequest, signal?: AbortSignal) =>
+    request('/Config/CreateTdsMaster', { method: 'POST', body, signal }),
+  updateTdsMaster: (body: UpdateTdsMasterRequest, signal?: AbortSignal) =>
+    request('/Config/UpdateTdsMaster', { method: 'PUT', body, signal }),
+  deleteTdsMaster: (tdsRateId: number, signal?: AbortSignal) =>
+    request(`/Config/DeleteTdsMaster/${encodeURIComponent(String(tdsRateId))}`, { method: 'DELETE', signal }),
+  getTdsMasterById: (tdsRateId: number, signal?: AbortSignal) =>
+    request(`/Config/GetTdsMasterByID/${encodeURIComponent(String(tdsRateId))}`, { method: 'GET', signal }),
+  getTdsMasters: (body: GetTdsMasterRequest, signal?: AbortSignal) =>
+    request('/Config/GetTdsMasters', { method: 'POST', body, signal }),
+  createServiceAgencyCharge: (body: CreateServiceAgencyChargeRequest, signal?: AbortSignal) =>
+    request('/Config/CreateServiceAgencyCharge', { method: 'POST', body, signal }),
+  updateServiceAgencyCharge: (body: UpdateServiceAgencyChargeRequest, signal?: AbortSignal) =>
+    request('/Config/UpdateServiceAgencyCharge', { method: 'PUT', body, signal }),
+  deleteServiceAgencyCharge: (mappingId: number, signal?: AbortSignal) =>
+    request(`/Config/DeleteServiceAgencyCharge/${encodeURIComponent(String(mappingId))}`, { method: 'DELETE', signal }),
+  getServiceAgencyChargeById: (mappingId: number, signal?: AbortSignal) =>
+    request(`/Config/GetServiceAgencyChargeByID/${encodeURIComponent(String(mappingId))}`, { method: 'GET', signal }),
+  getServiceAgencyCharges: (body: GetServiceAgencyChargeRequest, signal?: AbortSignal) =>
+    request('/Config/GetServiceAgencyCharges', { method: 'POST', body, signal }),
   createCodePrefix: (body: CreateCodePrefixRequest, signal?: AbortSignal) =>
     request('/Config/CreateCodePrefix', { method: 'POST', body, signal }),
   updateCodePrefix: (body: UpdateCodePrefixRequest, signal?: AbortSignal) =>
@@ -190,6 +274,31 @@ export const ConfigService = {
       `/Config/GetCommissionDistributionsByAgencyService?agencyId=${encodeURIComponent(String(agencyId))}&serviceId=${encodeURIComponent(String(serviceId))}`,
       { method: 'GET', signal },
     ),
+  createCommissionDistributionSetup: (
+    body: CreateCommissionDistributionSetupRequest,
+    signal?: AbortSignal,
+  ) =>
+    request('/Config/CreateCommissionDistributionSetup', { method: 'POST', body, signal }),
+  updateCommissionDistributionSetup: (
+    body: UpdateCommissionDistributionSetupRequest,
+    signal?: AbortSignal,
+  ) =>
+    request('/Config/UpdateCommissionDistributionSetup', { method: 'PUT', body, signal }),
+  deleteCommissionDistributionSetup: (distributionId: number, signal?: AbortSignal) =>
+    request(
+      `/Config/DeleteCommissionDistributionSetup/${encodeURIComponent(String(distributionId))}`,
+      { method: 'DELETE', signal },
+    ),
+  getCommissionDistributionSetupById: (distributionId: number, signal?: AbortSignal) =>
+    request(
+      `/Config/GetCommissionDistributionSetupByID/${encodeURIComponent(String(distributionId))}`,
+      { method: 'GET', signal },
+    ),
+  getCommissionDistributionSetups: (
+    body: GetCommissionDistributionSetupRequest,
+    signal?: AbortSignal,
+  ) =>
+    request('/Config/GetCommissionDistributionSetups', { method: 'POST', body, signal }),
   createTransactionSlab: (body: CreateTransactionSlabRequest, signal?: AbortSignal) =>
     request(`/Config/CreateTransactionSlab`, { method: 'POST', body, signal }),
   updateTransactionSlab: (body: UpdateTransactionSlabRequest, signal?: AbortSignal) =>

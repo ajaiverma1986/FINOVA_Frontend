@@ -1,5 +1,6 @@
 import UserDetailStep from './UserDetailStep';
 import UserParentMapping from './UserParentMapping';
+import UserWalletDetailStep from './UserWalletDetailStep';
 import { detailSteps, recordId } from './userWizardData';
 import './UserWizard.css';
 import CreatePanelDialog from '../AppManager/CreatePanelDialog';
@@ -146,10 +147,31 @@ export default function UserMasterComponent() {
   );
   const parentMappingApplicable =
     retailerSelected || Number(form.UserTypeId) === 4 || Number(form.UserTypeId) === 5;
-  const parentMappingStep = detailSteps.length + 1;
+  const normalizedUserTypeName = selectedUserTypeName.trim().toLowerCase();
+  const bankConfigurationApplicable = normalizedUserTypeName
+    ? ['retailer', 'retailor', 'distributor', 'master distributor'].includes(
+        normalizedUserTypeName,
+      )
+    : [3, 4, 5].includes(Number(form.UserTypeId));
+  const walletDetailApplicable = bankConfigurationApplicable;
+  const visibleDetailIndexes = detailSteps
+    .map((_, index) => index)
+    .filter((index) => bankConfigurationApplicable || (index !== 2 && index !== 3));
+  const parentMappingStep = visibleDetailIndexes.length;
+  const otherDetailStep = parentMappingApplicable ? visibleDetailIndexes.length + 1 : visibleDetailIndexes.length;
+  const walletDetailStep = otherDetailStep + 1;
+  const previousParentMappingApplicable = useRef(parentMappingApplicable);
+  const previousBankConfigurationApplicable = useRef(bankConfigurationApplicable);
   useEffect(() => {
-    if (!parentMappingApplicable && step === parentMappingStep) setStep(0);
-  }, [parentMappingApplicable, parentMappingStep, step]);
+    if (
+      previousParentMappingApplicable.current !== parentMappingApplicable ||
+      previousBankConfigurationApplicable.current !== bankConfigurationApplicable
+    ) {
+      if (step > 0) setStep(0);
+      previousParentMappingApplicable.current = parentMappingApplicable;
+      previousBankConfigurationApplicable.current = bankConfigurationApplicable;
+    }
+  }, [bankConfigurationApplicable, parentMappingApplicable, step]);
   const isAdmin = (userTypes.data ?? []).some(
     (row) =>
       numberValue(value(row, 'UserTypeId')) === form.UserTypeId &&
@@ -214,6 +236,10 @@ export default function UserMasterComponent() {
     created.current = false;
     void cache.invalidateQueries({ queryKey: ['user-master'] });
     cache.removeQueries({ queryKey: ['user-wizard'] });
+  }
+  function finishWizard() {
+    setMessage(mode === 'create' ? 'User setup completed.' : 'User details updated.');
+    close();
   }
   const list = useQuery({
     queryKey: ['user-master', 'list', activeOnly, search],
@@ -627,25 +653,34 @@ export default function UserMasterComponent() {
               <>
                 <div className="user-wizard-progress" role="tablist" aria-label="User setup steps">
                   {[
-                    'User',
-                    ...detailSteps.map((item) => item.title),
-                    ...(parentMappingApplicable ? ['Parent Mapping'] : []),
-                  ].map((title, index) => (
+                    { title: 'User', step: 0 },
+                    ...visibleDetailIndexes.slice(0, -1).map((detailIndex, index) => ({
+                      title: detailSteps[detailIndex].title,
+                      step: index + 1,
+                    })),
+                    ...(parentMappingApplicable
+                      ? [{ title: 'Parent Mapping', step: parentMappingStep }]
+                      : []),
+                    { title: detailSteps[detailSteps.length - 1].title, step: otherDetailStep },
+                    ...(walletDetailApplicable
+                      ? [{ title: 'Wallet Detail', step: walletDetailStep }]
+                      : []),
+                  ].map(({ title, step: tabStep }, index) => (
                     <button
                       key={title}
                       type="button"
                       role="tab"
                       id={`user-setup-tab-${index}`}
-                      aria-selected={step === index}
+                      aria-selected={step === tabStep}
                       aria-controls="user-setup-panel"
-                      tabIndex={step === index ? 0 : -1}
+                      tabIndex={step === tabStep ? 0 : -1}
                       disabled={saving || (index > 0 && !form.UserMasterID)}
                       title={
                         index > 0 && !form.UserMasterID
                           ? 'Save the user first to open this tab'
                           : title
                       }
-                      onClick={() => setStep(index)}
+                      onClick={() => setStep(tabStep)}
                       onKeyDown={(event) => {
                         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
                         event.preventDefault();
@@ -679,9 +714,16 @@ export default function UserMasterComponent() {
                   </p>
                 )}
                 <p className="user-wizard-hint">
-                  Step {step + 1} of {parentMappingApplicable ? 7 : 6}.{' '}
-                  {step === parentMappingStep
-                    ? 'Save and finish saves this step and closes the wizard.'
+                  Step {step + 1} of{' '}
+                  {visibleDetailIndexes.length +
+                    1 +
+                    (parentMappingApplicable ? 1 : 0) +
+                    (walletDetailApplicable ? 1 : 0)}
+                  .{' '}
+                  {parentMappingApplicable && step === parentMappingStep
+                    ? 'Save and next saves this step and opens Other Detail.'
+                    : walletDetailApplicable && step === walletDetailStep
+                      ? 'Review wallet details and finish setup.'
                     : 'Next saves this step.'}{' '}
                   Switch tabs or use Previous to keep editing without saving.
                   {!form.UserMasterID && ' Save the user first to unlock the other tabs.'}
@@ -811,30 +853,29 @@ export default function UserMasterComponent() {
                 ))}
               {mode !== 'view' &&
                 form.UserMasterID > 0 &&
-                detailSteps.map((item, index) => (
+                visibleDetailIndexes.map((index) => (
                   <UserDetailStep
-                    key={item.id}
+                    key={detailSteps[index].id}
                     index={index}
                     userId={form.UserMasterID}
                     userTypeId={form.UserTypeId}
-                    isLastStep={index === detailSteps.length - 1 && !parentMappingApplicable}
-                    active={step === index + 1}
+                    isLastStep={index === detailSteps.length - 1 && !walletDetailApplicable}
+                    active={
+                      index === detailSteps.length - 1
+                        ? step === otherDetailStep
+                        : step === visibleDetailIndexes.indexOf(index) + 1
+                    }
                     onSaving={setSaving}
                     onPrevious={() => setStep(step - 1)}
                     onNext={() => {
-                      if (index === detailSteps.length - 1 && parentMappingApplicable) {
-                        setStep(parentMappingStep);
-                      } else if (index === detailSteps.length - 1) {
-                        setMessage(
-                          mode === 'create' ? 'User setup completed.' : 'User details updated.',
-                        );
-                        setMode(null);
-                        setSelectedId(null);
-                        setForm(emptyForm);
-                        setStep(0);
-                        created.current = false;
-                        void cache.invalidateQueries({ queryKey: ['user-master'] });
-                        void cache.removeQueries({ queryKey: ['user-wizard'] });
+                      if (index === detailSteps.length - 1) {
+                        if (walletDetailApplicable) setStep(walletDetailStep);
+                        else finishWizard();
+                      } else if (
+                        visibleDetailIndexes[visibleDetailIndexes.indexOf(index) + 1] ===
+                        detailSteps.length - 1
+                      ) {
+                        setStep(parentMappingApplicable ? parentMappingStep : otherDetailStep);
                       } else setStep(step + 1);
                     }}
                   />
@@ -847,7 +888,16 @@ export default function UserMasterComponent() {
                   userTypeName={selectedUserTypeName}
                   active={step === parentMappingStep}
                   onSaving={setSaving}
+                  onNext={() => setStep(otherDetailStep)}
                   onFinish={close}
+                />
+              )}
+              {mode !== 'view' && form.UserMasterID > 0 && walletDetailApplicable && (
+                <UserWalletDetailStep
+                  userId={form.UserMasterID}
+                  active={step === walletDetailStep}
+                  onPrevious={() => setStep(otherDetailStep)}
+                  onFinish={finishWizard}
                 />
               )}
             </div>

@@ -8,7 +8,7 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
-function setup(userTypeId: number, parentId = 0, userTypeName?: string, finish = vi.fn()) {
+function setup(userTypeId: number, parentId = 0, userTypeName?: string, next = vi.fn()) {
   vi.spyOn(UserMgrService, 'getUserMasterById').mockResolvedValue({
     Result: [{ UserMasterID: 40, ParentId: parentId }],
   });
@@ -49,30 +49,31 @@ function setup(userTypeId: number, parentId = 0, userTypeName?: string, finish =
         userTypeId={userTypeId}
         active
         onSaving={vi.fn()}
-        onFinish={finish}
+        onNext={next}
+        onFinish={vi.fn()}
       />
     </QueryClientProvider>,
   );
   return save;
 }
-it('preselects and saves a Distributor master parent', async () => {
-  const finish = vi.fn();
-  const save = setup(4, 10, undefined, finish);
+it('preselects and saves a Distributor master parent before advancing', async () => {
+  const next = vi.fn();
+  const save = setup(4, 10, undefined, next);
   const master = (await screen.findByLabelText('Master Distributor *')) as HTMLSelectElement;
   expect(master.value).toBe('10');
   expect(screen.getByRole('option', { name: 'Ajay Kumar Verma[Master A]' })).toBeDefined();
   expect(screen.queryByLabelText('Distributor *')).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Save and finish' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save and next' }));
   await screen.findByText('Parent mapping saved.');
   expect(save).toHaveBeenCalledWith({ userMasterID: 40, parentId: 10 });
-  expect(finish).toHaveBeenCalledTimes(1);
+  expect(next).toHaveBeenCalledTimes(1);
 });
 it('filters Retailer distributors, clears stale choices, and saves the direct Distributor parent', async () => {
   const save = setup(5);
   const master = await screen.findByLabelText('Master Distributor *');
   expect((screen.getByLabelText('Distributor *') as HTMLSelectElement).disabled).toBe(true);
   expect(
-    (screen.getByRole('button', { name: 'Save and finish' }) as HTMLButtonElement).disabled,
+    (screen.getByRole('button', { name: 'Save and next' }) as HTMLButtonElement).disabled,
   ).toBe(true);
   fireEvent.change(master, { target: { value: '10' } });
   await screen.findByRole('option', { name: '[Distributor A]' });
@@ -85,12 +86,12 @@ it('filters Retailer distributors, clears stale choices, and saves the direct Di
   expect((screen.getByLabelText('Distributor *') as HTMLSelectElement).value).toBe('');
   expect(screen.queryByRole('option', { name: '[Distributor A]' })).toBeNull();
   expect(
-    (screen.getByRole('button', { name: 'Save and finish' }) as HTMLButtonElement).disabled,
+    (screen.getByRole('button', { name: 'Save and next' }) as HTMLButtonElement).disabled,
   ).toBe(true);
   await screen.findByRole('option', { name: '[Distributor B]' });
   expect(UserMgrService.getUsersByParentId).toHaveBeenCalledWith(11, 4, expect.any(AbortSignal));
   fireEvent.change(screen.getByLabelText('Distributor *'), { target: { value: '26' } });
-  fireEvent.click(screen.getByRole('button', { name: 'Save and finish' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save and next' }));
   await waitFor(() => expect(save).toHaveBeenCalledWith({ userMasterID: 40, parentId: 26 }));
 });
 it('restores both levels of an existing Retailer mapping', async () => {
@@ -110,8 +111,8 @@ it('shows save failures and allows retry', async () => {
   const save = setup(4, 10);
   save.mockRejectedValueOnce(new Error('Mapping failed'));
   await screen.findByLabelText('Master Distributor *');
-  fireEvent.click(screen.getByRole('button', { name: 'Save and finish' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save and next' }));
   await screen.findByText('Mapping failed');
-  fireEvent.click(screen.getByRole('button', { name: 'Save and finish' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save and next' }));
   await screen.findByText('Parent mapping saved.');
 });

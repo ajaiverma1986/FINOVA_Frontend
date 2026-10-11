@@ -1,4 +1,5 @@
 import type { ApiResponse } from '../../core/types';
+import { formatAuditDate } from '../../core/formatAuditDate';
 import type { SearchPayinRequest } from '../../services/WalletService';
 
 export type PayinRow = Record<string, unknown>;
@@ -91,7 +92,7 @@ export function cell(row: PayinRow, key: string) {
         value(row, 'Status') ||
         '',
     );
-  return value(row, key) ?? '';
+  return formatAuditDate(value(row, key), key) ?? '';
 }
 export function documentUrl(row: PayinRow) {
   return String(

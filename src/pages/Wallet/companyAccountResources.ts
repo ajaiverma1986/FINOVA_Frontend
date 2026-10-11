@@ -2,7 +2,7 @@ import { WalletService, type CompanyAccountRequest } from '../../services/Wallet
 import type { ApiResponse } from '../../core/types';
 import type { ConfigField } from '../Configuration/configResources';
 
-export type Values = Record<string, string | number | File | null>;
+export type Values = Record<string, string | number | boolean | File | null>;
 type Operation = {
   fields: ConfigField[];
   run: (values: Values, signal?: AbortSignal) => Promise<ApiResponse<unknown>>;

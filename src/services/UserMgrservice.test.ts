@@ -90,6 +90,8 @@ it.each([
     '/UserMgr/GetActiveOtherDetailsByUserMasterID?userMasterId=7',
     'GET',
   ],
+  ['deleteUserWallet', [7], '/UserMgr/DeleteUserWallet/7', 'DELETE'],
+  ['getUserWalletById', [7], '/UserMgr/GetUserWalletByID/7', 'GET'],
   ['getAllUserMasters', [], '/UserMgr/GetAllUserMasters', 'GET'],
   ['getActiveUserMasters', [], '/UserMgr/GetActiveUserMasters', 'GET'],
   ['getUserMasterById', [7], '/UserMgr/GetUserMasterByID?userMasterID=7', 'GET'],
@@ -148,6 +150,63 @@ it.each([
   } else {
     expect(request).toHaveBeenCalledWith(`/UserMgr/${endpoint}`, { method: 'POST', body, signal });
   }
+});
+
+it('updates a wallet with the documented PUT body', async () => {
+  const body = {
+    UserDetailId: 7,
+    UserMasterId: 4,
+    AvailableLimit: 1000,
+    ThresoldLimit: 200,
+    RemarkReason: null,
+    Status: 1,
+  };
+  const signal = new AbortController().signal;
+  await UserMgrService.updateUserWallet(body, signal);
+  expect(request).toHaveBeenCalledWith('/UserMgr/UpdateUserWallet', {
+    method: 'PUT',
+    body,
+    signal,
+  });
+});
+
+it('loads wallet records using the documented POST filter body', async () => {
+  const body = { UserMasterId: 4, Status: 0 };
+  const signal = new AbortController().signal;
+  await UserMgrService.getUserWallets(body, signal);
+  expect(request).toHaveBeenCalledWith('/UserMgr/GetUserWallets', {
+    method: 'POST',
+    body,
+    signal,
+  });
+});
+
+it('loads threshold users using the documented POST filter body', async () => {
+  const body = {
+    OrganizationID: 0,
+    UserTypeId: 0,
+    ParentId: 0,
+    Status: 0,
+    SearchText: '',
+  };
+  const signal = new AbortController().signal;
+  await UserMgrService.getThresoldUserList(body, signal);
+  expect(request).toHaveBeenCalledWith('/UserMgr/GetThresoldUserList', {
+    method: 'POST',
+    body,
+    signal,
+  });
+});
+
+it('updates a user wallet threshold using the documented PUT body', async () => {
+  const body = { UserMasterId: 9, ThresoldLimit: 10000, ThresoldReason: 'Risk review' };
+  const signal = new AbortController().signal;
+  await UserMgrService.updateUserWalletThresoldLimit(body, signal);
+  expect(request).toHaveBeenCalledWith('/UserMgr/UpdateUserWalletThresoldLimit', {
+    method: 'PUT',
+    body,
+    signal,
+  });
 });
 
 it('sends bank account files and IDs using the Swagger multipart fields', async () => {

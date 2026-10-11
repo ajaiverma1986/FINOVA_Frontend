@@ -184,7 +184,7 @@ export const detailSteps: Step[] = [
       users.updateUserConfiguration({ ...body, ConfigurationId: body.ConfigurationId }),
   }),
   defineStep({
-    title: 'Other details',
+    title: 'Other Detail',
     id: 'OtherDetailId',
     owner: 'UserMasterId',
     defaults: { UserMasterId: 0, Pancard: '', AadharCard: '', GSTNo: '', Status: 8 },

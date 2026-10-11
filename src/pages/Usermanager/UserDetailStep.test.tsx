@@ -317,7 +317,7 @@ it('masks all identifiers and the record label while sending full values', async
   fireEvent.select(pan);
   fireEvent.change(pan, { target: { value: 'XY****234F', selectionStart: 2, selectionEnd: 2 } });
   expect(pan.value).toBe('******234F');
-  fireEvent.submit(screen.getByRole('form', { name: 'Other details' }));
+  fireEvent.submit(screen.getByRole('form', { name: 'Other Detail' }));
   await waitFor(() =>
     expect(save).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -23,6 +23,7 @@ export default function UserParentMapping({
   userTypeName,
   active,
   onSaving,
+  onNext,
   onFinish,
 }: {
   userId: number;
@@ -30,6 +31,7 @@ export default function UserParentMapping({
   userTypeName?: string;
   active: boolean;
   onSaving: (saving: boolean) => void;
+  onNext: () => void;
   onFinish: () => void;
 }) {
   const cache = useQueryClient();
@@ -126,7 +128,7 @@ export default function UserParentMapping({
       await cache.invalidateQueries({ queryKey: ['user-parent-options'] });
       await cache.invalidateQueries({ queryKey: ['user-wizard', userId, 'parent-mapping'] });
       setMessage('Parent mapping saved.');
-      onFinish();
+      onNext();
     } catch (caught) {
       setError(caught);
     } finally {
@@ -222,7 +224,7 @@ export default function UserParentMapping({
       )}
       <div className="master-form-actions">
         <button type="submit" disabled={saving || !valid}>
-          {saving ? 'Saving...' : 'Save and finish'}
+          {saving ? 'Saving...' : 'Save and next'}
         </button>
         <button type="button" className="secondary" disabled={saving} onClick={onFinish}>
           Close

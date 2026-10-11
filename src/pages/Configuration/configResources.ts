@@ -1,5 +1,11 @@
 import {
   ConfigService,
+  type CreateTdsMasterRequest,
+  type UpdateTdsMasterRequest,
+  type GetTdsMasterRequest,
+  type CreateServiceAgencyChargeRequest,
+  type UpdateServiceAgencyChargeRequest,
+  type GetServiceAgencyChargeRequest,
   type CreateCodePrefixRequest,
   type UpdateCodePrefixRequest,
   type GetCodePrefixRequest,
@@ -9,17 +15,113 @@ import {
   type UpdateTopupChargeRequest,
   type CreateCommissionDistributionRequest,
   type UpdateCommissionDistributionRequest,
+  type CreateCommissionDistributionSetupRequest,
+  type UpdateCommissionDistributionSetupRequest,
+  type GetCommissionDistributionSetupRequest,
   type CreateTransactionSlabRequest,
   type UpdateTransactionSlabRequest,
 } from '../../services/ConfigService';
 import type { ApiResponse } from '../../core/types';
-export type Values = Record<string, string | number | null>;
+export type Values = Record<string, string | number | boolean | null>;
 export type ConfigField = { key: string; type: string; nullable: boolean };
 export type ConfigOperation = {
   fields: ConfigField[];
   run: (values: Values, signal?: AbortSignal) => Promise<ApiResponse<unknown>>;
 };
 export const configOperations = {
+  CreateTdsMaster: {
+    fields: [
+      { key: 'IsPanAvailable', type: 'boolean', nullable: false },
+      { key: 'TdsRate', type: 'number', nullable: false },
+      { key: 'Remarks', type: 'string', nullable: true },
+      { key: 'Stratus', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.createTdsMaster(values as unknown as CreateTdsMasterRequest, signal),
+  },
+  UpdateTdsMaster: {
+    fields: [
+      { key: 'TdsRateId', type: 'integer', nullable: false },
+      { key: 'IsPanAvailable', type: 'boolean', nullable: false },
+      { key: 'TdsRate', type: 'number', nullable: false },
+      { key: 'Remarks', type: 'string', nullable: true },
+      { key: 'Stratus', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.updateTdsMaster(values as unknown as UpdateTdsMasterRequest, signal),
+  },
+  DeleteTdsMaster: {
+    fields: [{ key: 'tdsRateId', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.deleteTdsMaster(Number(values.tdsRateId), signal),
+  },
+  GetTdsMasterByID: {
+    fields: [{ key: 'tdsRateId', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.getTdsMasterById(Number(values.tdsRateId), signal),
+  },
+  GetTdsMasters: {
+    fields: [
+      { key: 'IsPanAvailable', type: 'boolean', nullable: true },
+      { key: 'Stratus', type: 'integer', nullable: true },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.getTdsMasters({ IsPanAvailable: null, Stratus: null, ...values } as GetTdsMasterRequest, signal),
+  },
+  CreateServiceAgencyCharge: {
+    fields: [
+      { key: 'AgencyID', type: 'integer', nullable: true },
+      { key: 'ServiceID', type: 'integer', nullable: true },
+      { key: 'SlabTypeId', type: 'integer', nullable: true },
+      { key: 'CalculationTypeId', type: 'integer', nullable: true },
+      { key: 'FromAmount', type: 'number', nullable: false },
+      { key: 'ToAmount', type: 'number', nullable: false },
+      { key: 'CalculationValue', type: 'number', nullable: false },
+      { key: 'Status', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.createServiceAgencyCharge(values as unknown as CreateServiceAgencyChargeRequest, signal),
+  },
+  UpdateServiceAgencyCharge: {
+    fields: [
+      { key: 'MappingId', type: 'integer', nullable: false },
+      { key: 'AgencyID', type: 'integer', nullable: true },
+      { key: 'ServiceID', type: 'integer', nullable: true },
+      { key: 'SlabTypeId', type: 'integer', nullable: true },
+      { key: 'CalculationTypeId', type: 'integer', nullable: true },
+      { key: 'FromAmount', type: 'number', nullable: false },
+      { key: 'ToAmount', type: 'number', nullable: false },
+      { key: 'CalculationValue', type: 'number', nullable: false },
+      { key: 'Status', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.updateServiceAgencyCharge(values as unknown as UpdateServiceAgencyChargeRequest, signal),
+  },
+  DeleteServiceAgencyCharge: {
+    fields: [{ key: 'MappingId', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) => ConfigService.deleteServiceAgencyCharge(Number(values.MappingId), signal),
+  },
+  GetServiceAgencyChargeByID: {
+    fields: [{ key: 'MappingId', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) => ConfigService.getServiceAgencyChargeById(Number(values.MappingId), signal),
+  },
+  GetServiceAgencyCharges: {
+    fields: [
+      { key: 'AgencyID', type: 'integer', nullable: true },
+      { key: 'ServiceID', type: 'integer', nullable: true },
+      { key: 'SlabTypeId', type: 'integer', nullable: true },
+      { key: 'CalculationTypeId', type: 'integer', nullable: true },
+      { key: 'Status', type: 'integer', nullable: true },
+    ],
+    run: (values: Values, signal?: AbortSignal) => ConfigService.getServiceAgencyCharges(
+      { AgencyID: null, ServiceID: null, SlabTypeId: null, CalculationTypeId: null, Status: null, ...values } as GetServiceAgencyChargeRequest, signal),
+  },
+  GetActiveServiceAgencyCharges: {
+    fields: [],
+    run: (_values: Values, signal?: AbortSignal) => ConfigService.getServiceAgencyCharges(
+      { AgencyID: null, ServiceID: null, SlabTypeId: null, CalculationTypeId: null, Status: 1 }, signal),
+  },
+
   CreateCodePrefix: {
     fields: [
       { key: 'OrganizationId', type: 'integer', nullable: false },
@@ -224,6 +326,68 @@ export const configOperations = {
         signal,
       ),
   },
+  CreateCommissionDistributionSetup: {
+    fields: [
+      { key: 'AgencyId', type: 'integer', nullable: false },
+      { key: 'ServiceId', type: 'integer', nullable: false },
+      { key: 'PlanId', type: 'integer', nullable: false },
+      { key: 'CalculationTypeId', type: 'integer', nullable: false },
+      { key: 'AgancyValue', type: 'number', nullable: false },
+      { key: 'OrgValue', type: 'number', nullable: false },
+      { key: 'MdsValue', type: 'number', nullable: false },
+      { key: 'DSValue', type: 'number', nullable: false },
+      { key: 'AgentValue', type: 'number', nullable: false },
+      { key: 'Status', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.createCommissionDistributionSetup(
+        values as unknown as CreateCommissionDistributionSetupRequest,
+        signal,
+      ),
+  },
+  UpdateCommissionDistributionSetup: {
+    fields: [
+      { key: 'DistributionId', type: 'integer', nullable: false },
+      { key: 'AgencyId', type: 'integer', nullable: false },
+      { key: 'ServiceId', type: 'integer', nullable: false },
+      { key: 'PlanId', type: 'integer', nullable: false },
+      { key: 'CalculationTypeId', type: 'integer', nullable: false },
+      { key: 'AgancyValue', type: 'number', nullable: false },
+      { key: 'OrgValue', type: 'number', nullable: false },
+      { key: 'MdsValue', type: 'number', nullable: false },
+      { key: 'DSValue', type: 'number', nullable: false },
+      { key: 'AgentValue', type: 'number', nullable: false },
+      { key: 'Status', type: 'integer', nullable: false },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.updateCommissionDistributionSetup(
+        values as unknown as UpdateCommissionDistributionSetupRequest,
+        signal,
+      ),
+  },
+  DeleteCommissionDistributionSetup: {
+    fields: [{ key: 'distributionId', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.deleteCommissionDistributionSetup(Number(values.distributionId), signal),
+  },
+  GetCommissionDistributionSetupByID: {
+    fields: [{ key: 'distributionId', type: 'integer', nullable: false }],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.getCommissionDistributionSetupById(Number(values.distributionId), signal),
+  },
+  GetCommissionDistributionSetups: {
+    fields: [
+      { key: 'AgencyId', type: 'integer', nullable: true },
+      { key: 'ServiceId', type: 'integer', nullable: true },
+      { key: 'PlanId', type: 'integer', nullable: true },
+      { key: 'CalculationTypeId', type: 'integer', nullable: true },
+    ],
+    run: (values: Values, signal?: AbortSignal) =>
+      ConfigService.getCommissionDistributionSetups(
+        { AgencyId: null, ServiceId: null, PlanId: null, CalculationTypeId: null, ...values } as GetCommissionDistributionSetupRequest,
+        signal,
+      ),
+  },
   CreateTransactionSlab: {
     fields: [
       { key: 'PlanId', type: 'integer', nullable: true },
@@ -322,6 +486,19 @@ export type ConfigResource = {
   searches: { label: string; operation: OperationKey }[];
 };
 export const configResources: Record<string, ConfigResource> = {
+  tdsMaster: {
+    title: 'TDS configuration',
+    singular: 'TDS rate',
+    id: 'TdsRateId',
+    hiddenColumns: ['Stratus', 'Status', 'StatusName', 'CreatedBy', 'UpdatedBy'],
+    list: 'GetTdsMasters',
+    active: 'GetTdsMasters',
+    create: 'CreateTdsMaster',
+    update: 'UpdateTdsMaster',
+    detail: 'GetTdsMasterByID',
+    remove: 'DeleteTdsMaster',
+    searches: [],
+  },
   codePrefix: {
     title: 'Code prefixes',
     singular: 'code prefix',
@@ -350,23 +527,52 @@ export const configResources: Record<string, ConfigResource> = {
       { label: 'Calculation Type ID', operation: 'GetTopupChargesByCalculationTypeID' },
     ],
   },
-  commission: {
-    title: 'Commission distributions',
-    singular: 'commission distribution',
-    id: 'MarginConfigrationID',
-    hiddenColumns: ['AgencyId', 'ServiceId', 'PlanId', 'CalculationTypeId', 'Status'],
-    list: 'GetAllCommissionDistributions',
-    active: 'GetActiveCommissionDistributions',
-    create: 'CreateCommissionDistribution',
-    update: 'UpdateCommissionDistribution',
-    detail: 'GetCommissionDistributionByID',
-    remove: 'DeleteCommissionDistribution',
-    searches: [
-      { label: 'Agency ID', operation: 'GetCommissionDistributionsByAgencyID' },
-      { label: 'Service ID', operation: 'GetCommissionDistributionsByServiceID' },
-      { label: 'Plan ID', operation: 'GetCommissionDistributionsByPlanID' },
-      { label: 'Agency Service', operation: 'GetCommissionDistributionsByAgencyService' },
+  serviceAgencyCharge: {
+    title: 'Service agency charge setup',
+    singular: 'service agency charge',
+    id: 'MappingId',
+    hiddenColumns: [
+      'AgencyID',
+      'ServiceID',
+      'SlabTypeId',
+      'CalculationTypeId',
+      'ServiceTypeName',
+      'Status',
+      'CreatedBy',
+      'UpdatedBy',
     ],
+    list: 'GetServiceAgencyCharges',
+    active: 'GetActiveServiceAgencyCharges',
+    create: 'CreateServiceAgencyCharge',
+    update: 'UpdateServiceAgencyCharge',
+    detail: 'GetServiceAgencyChargeByID',
+    remove: 'DeleteServiceAgencyCharge',
+    searches: [],
+  },
+  commissionDistributionSetup: {
+    title: 'Commission distribution setup',
+    singular: 'commission distribution',
+    id: 'DistributionId',
+    hiddenColumns: [
+      'AgencyId',
+      'ServiceId',
+      'PlanId',
+      'CalculationTypeId',
+      'Status',
+      'CreatedBy',
+      'CreatedByName',
+      'CreatedByUserName',
+      'UpdatedBy',
+      'UpdatedByName',
+      'UpdatedByUserName',
+    ],
+    list: 'GetCommissionDistributionSetups',
+    active: 'GetCommissionDistributionSetups',
+    create: 'CreateCommissionDistributionSetup',
+    update: 'UpdateCommissionDistributionSetup',
+    detail: 'GetCommissionDistributionSetupByID',
+    remove: 'DeleteCommissionDistributionSetup',
+    searches: [],
   },
   transaction: {
     title: 'Transaction slabs',
