@@ -1,3 +1,5 @@
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -63,8 +65,15 @@ export default function TemplateTypeListPage() {
             const type = record as unknown as TemplateType;
             return (
               <div className="actions">
-                <button type="button" className="secondary" onClick={() => setViewing(type)}>
-                  View
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => setViewing(type)}
+                  data-grid-icon="true"
+                  title="View"
+                  aria-label="View"
+                >
+                  <VisibilityOutlinedIcon fontSize="small" />
                 </button>
                 <button
                   type="button"
@@ -74,8 +83,11 @@ export default function TemplateTypeListPage() {
                     remove.reset();
                     setDeleting(type);
                   }}
+                  data-grid-icon="true"
+                  title="Delete"
+                  aria-label="Delete"
                 >
-                  Delete
+                  <DeleteOutlineIcon fontSize="small" />
                 </button>
               </div>
             );

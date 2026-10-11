@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { formatAuditDate } from '../core/formatAuditDate';
 
 const PAGE_SIZE = 20;
 
@@ -21,7 +22,9 @@ export function csvCell(value: unknown) {
 export function downloadCsv(rows: Record<string, unknown>[], columns: string[], name: string) {
   const content = [
     columns.map(csvCell).join(','),
-    ...rows.map((row) => columns.map((column) => csvCell(row[column])).join(',')),
+    ...rows.map((row) =>
+      columns.map((column) => csvCell(formatAuditDate(row[column], column))).join(','),
+    ),
   ].join('\r\n');
   const url = URL.createObjectURL(
     new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' }),
@@ -188,7 +191,7 @@ export function DataTable({
                     return (
                       <tr key={rowIndex} className={selected ? 'selected-row' : undefined}>
                         {columns.map((column) => (
-                          <td key={column}>{textValue(row[column])}</td>
+                          <td key={column}>{textValue(formatAuditDate(row[column], column))}</td>
                         ))}
                         {onSelect && (
                           <td>

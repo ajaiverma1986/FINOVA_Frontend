@@ -1,3 +1,6 @@
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -89,15 +92,19 @@ export default function TemplateListPage() {
                   className="button template-action template-action-view"
                   aria-label={`View ${row.TemplateName || 'template'}`}
                   to={`${templateListPath}/View?id=${row.TemplateID}`}
+                  data-grid-icon="true"
+                  title="View"
                 >
-                  View
+                  <VisibilityOutlinedIcon fontSize="small" />
                 </Link>
                 <Link
                   className="button template-action template-action-edit"
                   aria-label={`Edit ${row.TemplateName || 'template'}`}
                   to={`${templateListPath}/Edit?id=${row.TemplateID}`}
+                  data-grid-icon="true"
+                  title="Edit"
                 >
-                  Edit
+                  <EditOutlinedIcon fontSize="small" />
                 </Link>
                 <button
                   type="button"
@@ -108,8 +115,10 @@ export default function TemplateListPage() {
                     remove.reset();
                     setDeleting(row);
                   }}
+                  data-grid-icon="true"
+                  title="Delete"
                 >
-                  Delete
+                  <DeleteOutlineIcon fontSize="small" />
                 </button>
               </div>
             );

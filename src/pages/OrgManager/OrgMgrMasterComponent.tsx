@@ -335,18 +335,16 @@ export default function OrgMgrMasterComponent() {
                             title="View organization"
                             aria-label="View organization"
                             onClick={() => open('view', row)}
-                          >
-                            <VisibilityOutlinedIcon fontSize="small" /> View
-                          </button>
+                           data-grid-icon="true">
+                            <VisibilityOutlinedIcon fontSize="small" /></button>
                           <button
                             type="button"
                             className="master-action edit"
                             title="Edit organization"
                             aria-label="Edit organization"
                             onClick={() => open('edit', row)}
-                          >
-                            <EditOutlinedIcon fontSize="small" /> Edit
-                          </button>
+                           data-grid-icon="true">
+                            <EditOutlinedIcon fontSize="small" /></button>
                           <button
                             type="button"
                             className="master-action delete"
@@ -357,9 +355,8 @@ export default function OrgMgrMasterComponent() {
                               if (window.confirm('Delete this organization?'))
                                 remove.mutate(rowId(row));
                             }}
-                          >
-                            <DeleteOutlineIcon fontSize="small" /> Delete
-                          </button>
+                           data-grid-icon="true">
+                            <DeleteOutlineIcon fontSize="small" /></button>
                         </div>
                       </td>
                     </tr>

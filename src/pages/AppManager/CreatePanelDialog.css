@@ -6,35 +6,37 @@
   float: right;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
   margin: 0 0 16px 16px;
   padding: 9px 14px;
-  border: 1px solid #b9d6d8;
-  border-radius: 8px;
-  background: #f0f9f9;
-  color: #176e74;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-hover);
+  color: var(--color-primary);
   cursor: pointer;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 
 .app-manager-create-dialog .gateway-editor > button:first-child::before {
   content: '\00d7';
-  font-size: 21px;
+  font-size: var(--typography-font-size-lg);
   line-height: 1;
 }
 
 .app-manager-create-dialog .gateway-editor > button:first-child:hover {
-  background: #dceff0;
-  border-color: #176e74;
+  background: var(--color-selected);
+  border-color: var(--color-primary);
 }
 
 .app-manager-create-dialog .gateway-editor > button:first-child:focus-visible {
-  outline: 3px solid #176e74;
+  outline: 3px solid var(--color-primary);
   outline-offset: 3px;
 }
 
 .app-manager-create-dialog .gateway-editor > button:first-child:active {
-  background: #c7e4e6;
+  background: var(--color-selected);
 }
 
 .app-manager-create-dialog .master-form,

@@ -223,23 +223,41 @@ export const MasterDataService = {
   updateCalculationType: (body: UpdateCalculationTypeRequest, signal?: AbortSignal) =>
     request('/MasterData/UpdateCalculationType', { method: 'POST', body, signal }),
   deleteCalculationType: (calculationTypeId: number, signal?: AbortSignal) =>
-    request(`/MasterData/DeleteCalculationType/${encodeURIComponent(calculationTypeId)}`, { method: 'DELETE', signal }),
+    request(`/MasterData/DeleteCalculationType/${encodeURIComponent(calculationTypeId)}`, {
+      method: 'DELETE',
+      signal,
+    }),
   getCalculationTypeById: (calculationTypeId: number, signal?: AbortSignal) =>
-    request(`/MasterData/GetCalculationTypeByID?calculationTypeId=${encodeURIComponent(calculationTypeId)}`, { signal }),
-  getAllCalculationTypes: (signal?: AbortSignal) => request('/MasterData/GetAllCalculationTypes', { signal }),
-  getActiveCalculationTypes: (signal?: AbortSignal) => request('/MasterData/GetActiveCalculationTypes', { signal }),
+    request(
+      `/MasterData/GetCalculationTypeByID?calculationTypeId=${encodeURIComponent(calculationTypeId)}`,
+      { signal },
+    ),
+  getAllCalculationTypes: (signal?: AbortSignal) =>
+    request('/MasterData/GetAllCalculationTypes', { signal }),
+  getActiveCalculationTypes: (signal?: AbortSignal) =>
+    request('/MasterData/GetActiveCalculationTypes', { signal }),
   createPaymentAccount: (body: CreatePaymentAccountRequest, signal?: AbortSignal) =>
     request('/MasterData/CreatePaymentAccount', { method: 'POST', body, signal }),
   updatePaymentAccount: (body: UpdatePaymentAccountRequest, signal?: AbortSignal) =>
     request('/MasterData/UpdatePaymentAccount', { method: 'POST', body, signal }),
   deletePaymentAccount: (paymentAccountID: number, signal?: AbortSignal) =>
-    request(`/MasterData/DeletePaymentAccount/${encodeURIComponent(paymentAccountID)}`, { method: 'DELETE', signal }),
+    request(`/MasterData/DeletePaymentAccount/${encodeURIComponent(paymentAccountID)}`, {
+      method: 'DELETE',
+      signal,
+    }),
   getPaymentAccountById: (paymentAccountID: number, signal?: AbortSignal) =>
-    request(`/MasterData/GetPaymentAccountByID?paymentAccountID=${encodeURIComponent(paymentAccountID)}`, { signal }),
-  getAllPaymentAccounts: (signal?: AbortSignal) => request('/MasterData/GetAllPaymentAccounts', { signal }),
-  getActivePaymentAccounts: (signal?: AbortSignal) => request('/MasterData/GetActivePaymentAccounts', { signal }),
+    request(
+      `/MasterData/GetPaymentAccountByID?paymentAccountID=${encodeURIComponent(paymentAccountID)}`,
+      { signal },
+    ),
+  getAllPaymentAccounts: (signal?: AbortSignal) =>
+    request('/MasterData/GetAllPaymentAccounts', { signal }),
+  getActivePaymentAccounts: (signal?: AbortSignal) =>
+    request('/MasterData/GetActivePaymentAccounts', { signal }),
   getPaymentAccountsByBankId: (bankID: number, signal?: AbortSignal) =>
-    request(`/MasterData/GetPaymentAccountsByBankID?bankID=${encodeURIComponent(bankID)}`, { signal }),
+    request(`/MasterData/GetPaymentAccountsByBankID?bankID=${encodeURIComponent(bankID)}`, {
+      signal,
+    }),
   genderList: (signal?: AbortSignal) =>
     request(`/MasterData/GenderList`, { method: 'GET', signal }),
   maritalStatusList: (signal?: AbortSignal) =>
@@ -405,9 +423,12 @@ export const MasterDataService = {
     request(`/MasterData/GetAllKycTypes`, { method: 'GET', signal }),
   getActiveKycTypes: (signal?: AbortSignal) =>
     request(`/MasterData/GetActiveKycTypes`, { method: 'GET', signal }),
-  getKycTypesByUserTypeId: (userTypeID: number, signal?: AbortSignal) =>
+  getKycTypesByUserTypeId: (userTypeID: number, companyTypeId?: number, signal?: AbortSignal) =>
     request(
-      `/MasterData/GetKycTypesByUserTypeID?userTypeID=${encodeURIComponent(String(userTypeID))}`,
+      `/MasterData/GetKycTypesByUserTypeID?userTypeID=${encodeURIComponent(String(userTypeID))}` +
+        (companyTypeId === undefined
+          ? ''
+          : `&companyTypeId=${encodeURIComponent(String(companyTypeId))}`),
       { method: 'GET', signal },
     ),
   getKycTypesByUserAndCompanyType: (

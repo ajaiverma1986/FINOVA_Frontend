@@ -4,7 +4,17 @@ import { configOperations, type OperationKey } from '../pages/Configuration/conf
 vi.mock('../core/api', () => ({ request: vi.fn().mockResolvedValue({ Result: [] }) }));
 afterEach(() => vi.clearAllMocks());
 // Request contracts captured from the Config controller Swagger document.
-const cases: { name: string; values: Record<string, string | number | null>; url: string; method: string; body?: Record<string, string | number | null> }[] = [
+const cases: { name: string; values: Record<string, string | number | boolean | null>; url: string; method: string; body?: Record<string, string | number | boolean | null> }[] = [
+  {
+    name: 'CreateCodePrefix',
+    values: { OrganizationId: 2, ApplicationId: 3, CodePrefix: 'FIN', CodeLngth: '08', Status: 1 },
+    url: '/Config/CreateCodePrefix', method: 'POST',
+    body: { OrganizationId: 2, ApplicationId: 3, CodePrefix: 'FIN', CodeLngth: '08', Status: 1 },
+  },
+  {
+    name: 'DeleteCodePrefix', values: { Id: 7 },
+    url: '/Config/DeleteCodePrefix/7', method: 'DELETE',
+  },
   {
     name: 'GetServicePolicy',
     values: {
@@ -159,6 +169,85 @@ const cases: { name: string; values: Record<string, string | number | null>; url
       CalculationValue: 2,
       Status: 2,
     },
+  },
+  {
+    name: 'CreateCommissionDistributionSetup',
+    values: {
+      AgencyId: 2,
+      ServiceId: 3,
+      PlanId: 4,
+      CalculationTypeId: 5,
+      AgancyValue: 1.5,
+      OrgValue: 2.5,
+      MdsValue: 3.5,
+      DSValue: 4.5,
+      AgentValue: 5.5,
+      Status: 1,
+    },
+    url: '/Config/CreateCommissionDistributionSetup',
+    method: 'POST',
+    body: {
+      AgencyId: 2,
+      ServiceId: 3,
+      PlanId: 4,
+      CalculationTypeId: 5,
+      AgancyValue: 1.5,
+      OrgValue: 2.5,
+      MdsValue: 3.5,
+      DSValue: 4.5,
+      AgentValue: 5.5,
+      Status: 1,
+    },
+  },
+  {
+    name: 'UpdateCommissionDistributionSetup',
+    values: {
+      DistributionId: 7,
+      AgencyId: 2,
+      ServiceId: 3,
+      PlanId: 4,
+      CalculationTypeId: 5,
+      AgancyValue: 1.5,
+      OrgValue: 2.5,
+      MdsValue: 3.5,
+      DSValue: 4.5,
+      AgentValue: 5.5,
+      Status: 1,
+    },
+    url: '/Config/UpdateCommissionDistributionSetup',
+    method: 'PUT',
+    body: {
+      DistributionId: 7,
+      AgencyId: 2,
+      ServiceId: 3,
+      PlanId: 4,
+      CalculationTypeId: 5,
+      AgancyValue: 1.5,
+      OrgValue: 2.5,
+      MdsValue: 3.5,
+      DSValue: 4.5,
+      AgentValue: 5.5,
+      Status: 1,
+    },
+  },
+  {
+    name: 'DeleteCommissionDistributionSetup',
+    values: { distributionId: 7 },
+    url: '/Config/DeleteCommissionDistributionSetup/7',
+    method: 'DELETE',
+  },
+  {
+    name: 'GetCommissionDistributionSetupByID',
+    values: { distributionId: 7 },
+    url: '/Config/GetCommissionDistributionSetupByID/7',
+    method: 'GET',
+  },
+  {
+    name: 'GetCommissionDistributionSetups',
+    values: {},
+    url: '/Config/GetCommissionDistributionSetups',
+    method: 'POST',
+    body: { AgencyId: null, ServiceId: null, PlanId: null, CalculationTypeId: null },
   },
   {
     name: 'UpdateCommissionDistribution',
@@ -366,6 +455,49 @@ const cases: { name: string; values: Record<string, string | number | null>; url
     method: 'GET',
   },
 ];
+const charge = { AgencyID: 2, ServiceID: 3, SlabTypeId: 4, CalculationTypeId: 5, FromAmount: 1, ToAmount: 1000, CalculationValue: 10, Status: 1 };
+cases.push(
+  {
+    name: 'CreateTdsMaster',
+    values: { IsPanAvailable: true, TdsRate: 2.5, Remarks: 'TDS', Stratus: 1 },
+    url: '/Config/CreateTdsMaster',
+    method: 'POST',
+    body: { IsPanAvailable: true, TdsRate: 2.5, Remarks: 'TDS', Stratus: 1 },
+  },
+  {
+    name: 'UpdateTdsMaster',
+    values: { TdsRateId: 7, IsPanAvailable: false, TdsRate: 2.5, Remarks: 'TDS', Stratus: 1 },
+    url: '/Config/UpdateTdsMaster',
+    method: 'PUT',
+    body: { TdsRateId: 7, IsPanAvailable: false, TdsRate: 2.5, Remarks: 'TDS', Stratus: 1 },
+  },
+  {
+    name: 'DeleteTdsMaster',
+    values: { tdsRateId: 7 },
+    url: '/Config/DeleteTdsMaster/7',
+    method: 'DELETE',
+  },
+  {
+    name: 'GetTdsMasterByID',
+    values: { tdsRateId: 7 },
+    url: '/Config/GetTdsMasterByID/7',
+    method: 'GET',
+  },
+  {
+    name: 'GetTdsMasters',
+    values: { IsPanAvailable: null },
+    url: '/Config/GetTdsMasters',
+    method: 'POST',
+    body: { IsPanAvailable: null, Stratus: null },
+  },
+  { name: 'CreateServiceAgencyCharge', values: charge, url: '/Config/CreateServiceAgencyCharge', method: 'POST', body: charge },
+  { name: 'UpdateServiceAgencyCharge', values: { ...charge, MappingId: 7 }, url: '/Config/UpdateServiceAgencyCharge', method: 'PUT', body: { ...charge, MappingId: 7 } },
+  { name: 'DeleteServiceAgencyCharge', values: { MappingId: 7 }, url: '/Config/DeleteServiceAgencyCharge/7', method: 'DELETE' },
+  { name: 'GetServiceAgencyChargeByID', values: { MappingId: 7 }, url: '/Config/GetServiceAgencyChargeByID/7', method: 'GET' },
+  { name: 'GetServiceAgencyCharges', values: {}, url: '/Config/GetServiceAgencyCharges', method: 'POST', body: { AgencyID: null, ServiceID: null, SlabTypeId: null, CalculationTypeId: null, Status: null } },
+  { name: 'GetServiceAgencyCharges', values: { AgencyID: 2, ServiceID: 3 }, url: '/Config/GetServiceAgencyCharges', method: 'POST', body: { AgencyID: 2, ServiceID: 3, SlabTypeId: null, CalculationTypeId: null, Status: null } },
+  { name: 'GetActiveServiceAgencyCharges', values: {}, url: '/Config/GetServiceAgencyCharges', method: 'POST', body: { AgencyID: null, ServiceID: null, SlabTypeId: null, CalculationTypeId: null, Status: 1 } },
+);
 it.each(cases)('$name matches the documented request', async (item) => {
   const signal = new AbortController().signal;
   await configOperations[item.name as OperationKey].run(item.values, signal);

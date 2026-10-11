@@ -1,3 +1,5 @@
+import { ThemeSelector } from '../theme/ThemeSelector';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { createContext, useContext, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -19,6 +21,8 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import ViewListRoundedIcon from '@mui/icons-material/ViewListRounded';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../core/auth';
 import { loadMenu, permittedPaths, routePath, type MenuItem } from '../core/navigation';
@@ -41,6 +45,10 @@ export function ProtectedRoute() {
 export function DashboardLayoutNavigationLinks() {
   const { session, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [desktopOpen, setDesktopOpen] = useState(true);
+  const mobile = useMediaQuery('(max-width:760px)');
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const navigationOpen = mobile ? open : desktopOpen;
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const menu = useQuery({
     queryKey: ['navigation', session?.username],
@@ -77,21 +85,25 @@ export function DashboardLayoutNavigationLinks() {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f5f7fb' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'var(--color-background)' }}>
       <Drawer
-        variant="permanent"
+        variant={mobile ? 'temporary' : 'persistent'}
+        open={navigationOpen}
+        transitionDuration={reducedMotion ? 0 : 200}
+        onClose={() => setOpen(false)}
         sx={{
-          width: 280,
+          width: mobile || !desktopOpen ? 0 : 'var(--layout-sidebar-width)',
+          transition: reducedMotion ? 'none' : 'width 200ms ease',
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: 280,
+            width: 'var(--layout-sidebar-width)',
             boxSizing: 'border-box',
-            background: 'linear-gradient(180deg, #0e2f47 0%, #123b52 35%, #0d2d40 100%)',
-            color: '#dfeef4',
+            background: 'var(--navigation-sidebar-background)',
+            color: 'var(--navigation-sidebar-text)',
             borderRight: 'none',
             px: 1.6,
             py: 2.5,
-            boxShadow: '18px 0 35px rgba(11, 27, 39, 0.18)',
+            boxShadow: 'var(--shadow-lg)',
           },
         }}
       >
@@ -100,19 +112,25 @@ export function DashboardLayoutNavigationLinks() {
             sx={{
               width: 40,
               height: 40,
-              borderRadius: 2,
-              bgcolor: 'linear-gradient(135deg, #4ec7c3 0%, #2aa7a3 100%)',
-              background: 'linear-gradient(135deg, #4ec7c3 0%, #2aa7a3 100%)',
-              color: '#fff',
+              borderRadius: 'var(--border-radius-md)',
+              background: 'var(--color-primary)',
+              color: 'var(--color-on-primary)',
               display: 'grid',
               placeItems: 'center',
-              fontWeight: 800,
-              boxShadow: '0 10px 22px rgba(53, 184, 176, 0.4)',
+              fontWeight: 'var(--typography-font-weight-bold)',
+              boxShadow: 'var(--shadow-lg)',
             }}
           >
             F
           </Box>
-          <Typography variant="h6" sx={{ fontWeight: 800, color: '#fff', letterSpacing: 0.4 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 'var(--typography-font-weight-bold)',
+              color: 'var(--navigation-sidebar-active-text)',
+              letterSpacing: 0.4,
+            }}
+          >
             FINOVA
           </Typography>
         </Box>
@@ -121,40 +139,52 @@ export function DashboardLayoutNavigationLinks() {
           sx={{
             px: 1.5,
             mb: 2,
-            fontSize: '0.68rem',
+            fontSize: 'var(--typography-font-size-sm)',
             letterSpacing: '0.18em',
-            fontWeight: 700,
-            color: '#b7d8e6',
+            fontWeight: 'var(--typography-font-weight-bold)',
+            color: 'var(--navigation-sidebar-text)',
             textTransform: 'uppercase',
           }}
         >
           FINOVA DASHBOARD
         </Typography>
 
-        <List component="nav" disablePadding sx={{ width: '100%' }}>
+        <List
+          id="primary-navigation"
+          component="nav"
+          aria-label="Main navigation"
+          disablePadding
+          sx={{ width: '100%' }}
+        >
           <ListItemButton
             component={NavLink}
             to={home}
             onClick={() => setOpen(false)}
             sx={{
-              borderRadius: 2,
+              borderRadius: 'var(--border-radius-md)',
               minHeight: 52,
-              color: '#dfeef4',
+              color: 'var(--navigation-sidebar-text)',
               mb: 0.8,
-              background: 'rgba(255,255,255,0.02)',
+              background: 'transparent',
               '&.active': {
-                bgcolor: 'linear-gradient(90deg, rgba(78, 199, 195, 0.24), rgba(255,255,255,0.04))',
-                color: '#fff',
-                boxShadow: 'inset 0 0 0 1px rgba(124, 211, 219, 0.18)',
+                bgcolor: 'var(--navigation-sidebar-active-background)',
+                color: 'var(--navigation-sidebar-active-text)',
+                boxShadow: 'none',
               },
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
+              '&:hover': { bgcolor: 'var(--navigation-sidebar-hover-background)' },
             }}
           >
             <ListItemIcon sx={{ minWidth: 34, color: 'inherit' }}>
               <DashboardRoundedIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>
-              <Typography sx={{ fontSize: '0.96rem', fontWeight: 600, color: 'inherit' }}>
+              <Typography
+                sx={{
+                  fontSize: 'var(--typography-font-size-sm)',
+                  fontWeight: 'var(--typography-font-weight-semibold)',
+                  color: 'inherit',
+                }}
+              >
                 Home
               </Typography>
             </ListItemText>
@@ -182,24 +212,29 @@ export function DashboardLayoutNavigationLinks() {
                   aria-expanded={hasChildren ? isExpanded : undefined}
                   to={hasChildren ? undefined : (parentRoute ?? undefined)}
                   sx={{
-                    borderRadius: 2,
+                    borderRadius: 'var(--border-radius-md)',
                     minHeight: 52,
-                    color: '#dfeef4',
-                    background: 'rgba(255,255,255,0.02)',
+                    color: 'var(--navigation-sidebar-text)',
+                    background: 'transparent',
                     '&.active': {
-                      bgcolor:
-                        'linear-gradient(90deg, rgba(78, 199, 195, 0.24), rgba(255,255,255,0.04))',
-                      color: '#fff',
-                      boxShadow: 'inset 0 0 0 1px rgba(124, 211, 219, 0.18)',
+                      bgcolor: 'var(--navigation-sidebar-active-background)',
+                      color: 'var(--navigation-sidebar-active-text)',
+                      boxShadow: 'none',
                     },
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
+                    '&:hover': { bgcolor: 'var(--navigation-sidebar-hover-background)' },
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: 34, color: 'inherit' }}>
                     {getMenuIcon(parent.Title)}
                   </ListItemIcon>
                   <ListItemText>
-                    <Typography sx={{ fontSize: '0.96rem', fontWeight: 600, color: 'inherit' }}>
+                    <Typography
+                      sx={{
+                        fontSize: 'var(--typography-font-size-sm)',
+                        fontWeight: 'var(--typography-font-weight-semibold)',
+                        color: 'inherit',
+                      }}
+                    >
                       {parent.Title}
                     </Typography>
                   </ListItemText>
@@ -216,17 +251,17 @@ export function DashboardLayoutNavigationLinks() {
                           to={routePath(child.RoutePath!)}
                           onClick={() => setOpen(false)}
                           sx={{
-                            borderRadius: 2,
+                            borderRadius: 'var(--border-radius-md)',
                             pl: 2.5,
                             py: 1,
                             minHeight: 44,
-                            color: '#dfeef4',
+                            color: 'var(--navigation-sidebar-text)',
                             '&.active': {
-                              bgcolor: 'rgba(78, 199, 195, 0.14)',
-                              color: '#fff',
-                              boxShadow: 'inset 0 0 0 1px rgba(124, 211, 219, 0.14)',
+                              bgcolor: 'var(--navigation-sidebar-active-background)',
+                              color: 'var(--navigation-sidebar-active-text)',
+                              boxShadow: 'none',
                             },
-                            '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                            '&:hover': { bgcolor: 'var(--navigation-sidebar-hover-background)' },
                           }}
                         >
                           <ListItemIcon sx={{ minWidth: 30, color: 'inherit' }}>
@@ -234,7 +269,11 @@ export function DashboardLayoutNavigationLinks() {
                           </ListItemIcon>
                           <ListItemText>
                             <Typography
-                              sx={{ fontSize: '0.88rem', color: '#e5f4f8', fontWeight: 500 }}
+                              sx={{
+                                fontSize: 'var(--typography-font-size-sm)',
+                                color: 'inherit',
+                                fontWeight: 'var(--typography-font-weight-medium)',
+                              }}
                             >
                               {child.Title}
                             </Typography>
@@ -249,53 +288,78 @@ export function DashboardLayoutNavigationLinks() {
           })}
         </List>
 
-        <Box sx={{ mt: 'auto', px: 1.5, pt: 3, color: '#dfeef4' }}>
-          <Typography sx={{ fontWeight: 700 }}>FINOVA</Typography>
-          <Typography sx={{ color: '#a9c6d5', fontSize: '0.8rem' }}>Business payments</Typography>
+        <Box sx={{ mt: 'auto', px: 1.5, pt: 3, color: 'var(--navigation-sidebar-text)' }}>
+          <Typography sx={{ fontWeight: 'var(--typography-font-weight-bold)' }}>FINOVA</Typography>
+          <Typography
+            sx={{
+              color: 'var(--navigation-sidebar-text)',
+              fontSize: 'var(--typography-font-size-sm)',
+            }}
+          >
+            Business payments
+          </Typography>
         </Box>
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, ml: 0 }}>
+      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, ml: 0 }}>
         <AppBar
           position="sticky"
           elevation={0}
           sx={{
-            background: '#ffffff',
-            color: '#123b52',
-            borderBottom: '1px solid #dfe7ee',
+            background: 'var(--navigation-header-background)',
+            color: 'var(--navigation-header-text)',
+            borderBottom: '1px solid var(--color-border)',
             ml: 0,
           }}
         >
-          <Toolbar sx={{ minHeight: 72, px: 3, justifyContent: 'space-between' }}>
+          <Toolbar
+            sx={{
+              minHeight: 72,
+              p: 1.5,
+              gap: 1,
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <button
-                className="secondary menu-toggle"
+                className="secondary"
+                type="button"
                 aria-label="Toggle navigation"
-                aria-expanded={open}
-                onClick={() => setOpen(!open)}
+                title={navigationOpen ? 'Collapse navigation' : 'Expand navigation'}
+                aria-controls="primary-navigation"
+                aria-expanded={navigationOpen}
+                onClick={() =>
+                  mobile ? setOpen((value) => !value) : setDesktopOpen((value) => !value)
+                }
                 style={{ marginRight: 8 }}
               >
-                ☰
+                {navigationOpen ? <MenuOpenRoundedIcon /> : <MenuRoundedIcon />}
               </button>
-              <Typography sx={{ fontWeight: 600 }}>Partner portal</Typography>
+              <Typography sx={{ fontWeight: 'var(--typography-font-weight-semibold)' }}>
+                Partner portal
+              </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <ThemeSelector />
               <Box
                 sx={{
                   width: 34,
                   height: 34,
                   borderRadius: '50%',
-                  bgcolor: '#ddf0ed',
-                  color: '#246d66',
+                  bgcolor: 'var(--color-selected)',
+                  color: 'var(--color-primary)',
                   display: 'grid',
                   placeItems: 'center',
-                  fontWeight: 700,
+                  fontWeight: 'var(--typography-font-weight-bold)',
                 }}
               >
                 {session?.displayName.slice(0, 1).toUpperCase()}
               </Box>
-              <Typography sx={{ fontWeight: 600 }}>{session?.displayName}</Typography>
+              <Typography sx={{ fontWeight: 'var(--typography-font-weight-semibold)' }}>
+                {session?.displayName}
+              </Typography>
               <button className="secondary" onClick={logout}>
                 Sign out
               </button>
@@ -303,7 +367,16 @@ export function DashboardLayoutNavigationLinks() {
           </Toolbar>
         </AppBar>
 
-        <Box id="main" tabIndex={-1} sx={{ p: 3, minHeight: 'calc(100vh - 72px)' }}>
+        <Box
+          id="main"
+          tabIndex={-1}
+          sx={{
+            p: 'var(--layout-page-padding)',
+            maxWidth: 'var(--layout-page-max-width)',
+            mx: 'auto',
+            minHeight: 'calc(100vh - 72px)',
+          }}
+        >
           {menu.isPending ? (
             <Loading />
           ) : menu.isError ? (
@@ -320,7 +393,14 @@ export function DashboardLayoutNavigationLinks() {
           )}
         </Box>
 
-        <Box sx={{ px: 3, pb: 2, color: '#586d7b', fontSize: '0.78rem' }}>
+        <Box
+          sx={{
+            px: 3,
+            pb: 2,
+            color: 'var(--color-text-secondary)',
+            fontSize: 'var(--typography-font-size-sm)',
+          }}
+        >
           © {new Date().getFullYear()} FINOVA
         </Box>
       </Box>

@@ -1,5 +1,10 @@
 import { lazy } from 'react';
 export const routeComponents = {
+  '/Dashboard/CodePrefix': lazy(() => import('../pages/Configuration/CodePrefixPage')),
+  '/Dashboard/CreatePayinRequest': lazy(() => import('../pages/Wallet/CreatePayinRequestPage')),
+  '/Dashboard/CompanyAccount': lazy(() => import('../pages/Wallet/CompanyAccountPage')),
+  '/Dashboard/TransferRequestList': lazy(() => import('../pages/Repost/TransferRequestListPage')),
+  '/Dashboard/PayinRequestList': lazy(() => import('../pages/Wallet/PayinRequestListPage')),
   '/Dashboard/payacclist': lazy(() => import('../pages/Masters/PaymentAccountPage')),
   '/Dashboard/payacclist/Create': lazy(() => import('../pages/Masters/PaymentAccountPage')),
   '/Dashboard/payacclist/View': lazy(() => import('../pages/Masters/PaymentAccountPage')),
@@ -119,10 +124,13 @@ export const routeComponents = {
   '/Dashboard/AppMgr': lazy(() => import('../pages/AppManager/AppManagerPage')),
   '/Dashboard/MenuMgr': lazy(() => import('../pages/AppManager/MenuMasterPage')),
   '/Dashboard/ModuleMgr': lazy(() => import('../pages/AppManager/ModuleMasterPage')),
-  '/Dashboard/PayoutTxnrpt': lazy(() => import('../pages/Reports/TransactionReportPage')),
+  '/Dashboard/TransactionDetailReport': lazy(() => import('../pages/Reports/TransactionReportPage')),
+  '/Dashboard/UserListReport': lazy(() => import('../pages/Reports/UserListReportPage')),
   '/Dashboard/stmtrpt': lazy(() => import('../pages/Reports/UsrStatementPage')),
   '/Dashboard/payinReport': lazy(() => import('../pages/Reports/PayinRequestReportPage')),
-  '/Dashboard/Commdistr': lazy(() => import('../pages/Configuration/DistributionCommissionPage')),
+  '/Dashboard/ServiceAgencyChargeSetup': lazy(() => import('../pages/Configuration/ServiceAgencyChargeSetup')),
+  '/Dashboard/TdsConfiguration': lazy(() => import('../pages/Configuration/TdsConfiguration')),
+  '/Dashboard/Commdistr': lazy(() => import('../pages/Configuration/CommissionDistributionComponent')),
   '/Dashboard/servicemst': lazy(() => import('../pages/Masters/ServiceListPage')),
   '/Dashboard/servicemst/Create': lazy(() => import('../pages/Masters/ServiceListPage')),
   '/Dashboard/servicemst/View': lazy(() => import('../pages/Masters/ServiceListPage')),
@@ -139,4 +147,7 @@ export const routeComponents = {
   '/Dashboard/PermissionMgr': lazy(() => import('../pages/AppManager/PermissionMasterPage')),
   '/Dashboard/OrgMgr': lazy(() => import('../pages/OrgManager/OrgMgrMasterPage')),
   '/Dashboard/UserMasterlst': lazy(() => import('../pages/Usermanager/UserMasterPage')),
+  '/Dashboard/SetBandLimit': lazy(
+    () => import('../pages/Usermanager/ThresoldUserListPage'),
+  ),
 };

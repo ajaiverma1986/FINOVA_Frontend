@@ -2,6 +2,13 @@
 
 React 19, TypeScript, React Router, TanStack Query, React Hook Form and Vite. The React application is independent of Angular at runtime.
 
+## Global themes
+
+Light, Dark and Corporate themes are available from the header and sign-in theme
+selector. Preferences persist across refreshes. Edit `src/theme/theme.config.ts`
+and its registered configurations to control the application appearance. See the
+[theme guide](src/theme/README.md) for tokens, the `useTheme` API and adding themes.
+
 ## Run
 
 From the repository root:
