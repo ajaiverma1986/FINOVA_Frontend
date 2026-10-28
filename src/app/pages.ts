@@ -2,6 +2,7 @@ import type { PageDefinition } from '../core/types';
 export const pages: PageDefinition[] = [
   { path: '/Dashboard/CodePrefix', title: 'Code prefixes', group: 'Configuration', component: 'CodePrefixPage', source: 'src/pages/Configuration/CodePrefixPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/CreatePayinRequest', title: 'Create pay-in request', group: 'Wallet', component: 'CreatePayinRequestPage', source: 'src/pages/Wallet/CreatePayinRequestPage.tsx', operations: [], defaults: {}, columns: [] },
+  { path: '/Dashboard/DummyServiceTransactions', title: 'Dummy service transactions', group: 'Transactions', component: 'DummyServiceTransactionsPage', source: 'src/pages/Transactions/DummyServiceTransactionsPage.tsx', operations: ['TransactionService.createNewTransaction', 'TransactionService.updateTransactionStatus'], defaults: {}, columns: [] },
   { path: '/Dashboard/CompanyAccount', title: 'Company accounts', group: 'Wallet', component: 'CompanyAccountPage', source: 'src/pages/Wallet/CompanyAccountPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/TransferRequestList', title: 'Transfer Report', group: 'Repost', component: 'TransferRequestListPage', source: 'src/pages/Repost/TransferRequestListPage.tsx', operations: [], defaults: {}, columns: [] },
   { path: '/Dashboard/PayinRequestList', title: 'Pay-in requests', group: 'Wallet', component: 'PayinRequestListPage', source: 'src/pages/Wallet/PayinRequestListPage.tsx', operations: [], defaults: {}, columns: [] },

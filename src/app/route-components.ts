@@ -2,6 +2,9 @@ import { lazy } from 'react';
 export const routeComponents = {
   '/Dashboard/CodePrefix': lazy(() => import('../pages/Configuration/CodePrefixPage')),
   '/Dashboard/CreatePayinRequest': lazy(() => import('../pages/Wallet/CreatePayinRequestPage')),
+  '/Dashboard/DummyServiceTransactions': lazy(
+    () => import('../pages/Transactions/DummyServiceTransactionsPage'),
+  ),
   '/Dashboard/CompanyAccount': lazy(() => import('../pages/Wallet/CompanyAccountPage')),
   '/Dashboard/TransferRequestList': lazy(() => import('../pages/Repost/TransferRequestListPage')),
   '/Dashboard/PayinRequestList': lazy(() => import('../pages/Wallet/PayinRequestListPage')),
