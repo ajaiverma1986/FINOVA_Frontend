@@ -1,15 +1,15 @@
 .gateway-editor .gateway-back {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  font-weight: 600;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  font-weight: var(--typography-font-weight-semibold);
 }
 .gateway-editor h1 {
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-sm);
 }
 .gateway-subtitle {
-  color: #61788a;
+  color: var(--color-text-secondary);
   margin: 0 0 28px;
 }
 .gateway-form {
@@ -18,7 +18,7 @@
 .gateway-form .gateway-section-heading {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
   margin: 24px 0 20px;
 }
 .gateway-section-heading > span {
@@ -26,20 +26,20 @@
   place-items: center;
   width: 38px;
   height: 38px;
-  border-radius: 12px;
-  background: #e6f5f3;
-  color: #0f766e;
-  font-weight: 700;
+  border-radius: var(--border-radius-lg);
+  background: var(--color-hover);
+  color: var(--color-primary);
+  font-weight: var(--typography-font-weight-bold);
   flex-shrink: 0;
 }
 .gateway-form .gateway-section-heading h2 {
-  margin: 0 0 4px;
-  font-size: 17px;
+  margin: 0 0 var(--spacing-xs);
+  font-size: var(--typography-font-size-lg);
 }
 .gateway-section-heading p {
   margin: 0;
-  color: #61788a;
-  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-size: var(--typography-font-size-sm);
 }
 .gateway-form .form-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -47,36 +47,36 @@
 }
 .gateway-form .field {
   min-width: 0;
-  gap: 8px;
-  font-weight: 600;
+  gap: var(--spacing-sm);
+  font-weight: var(--typography-font-weight-semibold);
 }
 .gateway-form input:not([type='checkbox']) {
   width: 100%;
   min-width: 0;
   min-height: 46px;
   box-sizing: border-box;
-  border-radius: 9px;
-  background: #fbfdff;
+  border-radius: var(--border-radius-lg);
+  background: var(--color-surface-muted);
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease;
 }
 .gateway-form input:focus-visible {
-  outline: 2px solid #147d83;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px #e6f5f3;
+  box-shadow: var(--shadow-md);
 }
 .gateway-form small {
   display: block;
-  color: #61788a;
-  font-size: 12px;
-  font-weight: 400;
+  color: var(--color-text-secondary);
+  font-size: var(--typography-font-size-xs);
+  font-weight: var(--typography-font-weight-normal);
   line-height: 1.5;
 }
 .gateway-password {
   display: flex;
   align-items: stretch;
-  gap: 8px;
+  gap: var(--spacing-sm);
 }
 .gateway-password input {
   flex: 1;
@@ -89,30 +89,30 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px;
-  background: #f0faf8;
-  border: 1px solid #cae8e2;
-  border-radius: 10px;
+  padding: var(--spacing-lg);
+  background: var(--color-hover);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
   cursor: pointer;
-  font-weight: 600;
+  font-weight: var(--typography-font-weight-semibold);
 }
 .gateway-ssl input {
   width: 22px;
   height: 22px;
   flex-shrink: 0;
-  accent-color: #147d83;
+  accent-color: var(--color-primary);
   cursor: pointer;
 }
 .gateway-ssl small {
-  margin-top: 4px;
+  margin-top: var(--spacing-xs);
 }
 .gateway-form .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--spacing-md);
   padding-top: 24px;
   margin-top: 28px;
-  border-top: 1px solid #e1eaf0;
+  border-top: 1px solid var(--color-border);
 }
 .gateway-form .actions > * {
   min-height: 44px;

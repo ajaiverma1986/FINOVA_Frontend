@@ -11,7 +11,9 @@ export function readValues(form: HTMLFormElement, fields: ConfigField[]): Values
         field.key,
         raw === '' && field.nullable
           ? null
-          : ['number', 'integer'].includes(field.type)
+          : field.type === 'boolean'
+            ? raw === 'true'
+            : ['number', 'integer'].includes(field.type)
             ? Number(raw)
             : raw,
       ];
@@ -32,16 +34,24 @@ export default function ConfigFields({
         const initialKey = Object.keys(initial).find(
           (key) => key.toLowerCase() === field.key.toLowerCase(),
         );
-        const value = initialKey ? initial[initialKey] : field.key === 'Status' ? 1 : '';
+        const isStatus = field.key === 'Status' || field.key === 'Stratus';
+        const value = initialKey ? initial[initialKey] : isStatus && !field.nullable ? 1 : '';
         const kind = configLookupKind(field.key);
         if (kind) return <ConfigLookup key={field.key} field={field} initial={value} kind={kind} />;
         return (
           <label className="master-field" key={field.key}>
-            {title(field.key)}
-            {field.key === 'Status' ? (
-              <select name={field.key} defaultValue={String(value ?? 1)}>
+            {isStatus ? 'Status' : title(field.key)}
+            {isStatus ? (
+              <select name={field.key} defaultValue={String(value ?? '')}>
+                {field.nullable && <option value="">All statuses</option>}
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
+              </select>
+            ) : field.type === 'boolean' ? (
+              <select name={field.key} defaultValue={String(value ?? '')} required={!field.nullable}>
+                {field.nullable && <option value="">All</option>}
+                <option value="true">Yes</option>
+                <option value="false">No</option>
               </select>
             ) : (
               <input

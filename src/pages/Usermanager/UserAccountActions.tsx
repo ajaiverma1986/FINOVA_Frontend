@@ -3,6 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import CreatePanelDialog from '../AppManager/CreatePanelDialog';
 import { ErrorState } from '../../components/Status';
 import { UserMgrService } from '../../services/UserMgrservice';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 
 export default function UserAccountActions({ id }: { id: number }) {
   const cache = useQueryClient();
@@ -45,18 +47,22 @@ export default function UserAccountActions({ id }: { id: number }) {
       <button
         type="button"
         className="master-action edit"
+        title="Lock user"
+        aria-label="Lock"
         disabled={pending || !id}
         onClick={() => setAction('lock')}
-      >
-        Lock
+       data-grid-icon="true">
+        <LockOutlinedIcon fontSize="small" />
       </button>
       <button
         type="button"
         className="master-action edit"
+        title="Unlock user"
+        aria-label="Unlock"
         disabled={pending || !id}
         onClick={() => setAction('unlock')}
-      >
-        Unlock
+       data-grid-icon="true">
+        <LockOpenOutlinedIcon fontSize="small" />
       </button>
       {action && (
         <CreatePanelDialog

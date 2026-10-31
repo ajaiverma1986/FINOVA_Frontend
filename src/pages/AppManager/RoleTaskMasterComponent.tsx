@@ -361,18 +361,16 @@ export default function RoleTaskMasterComponent() {
                             title="View role task"
                             aria-label="View role task"
                             onClick={() => open('view', row)}
-                          >
-                            <VisibilityOutlinedIcon fontSize="small" /> View
-                          </button>
+                           data-grid-icon="true">
+                            <VisibilityOutlinedIcon fontSize="small" /></button>
                           <button
                             type="button"
                             className="master-action edit"
                             title="Edit role task"
                             aria-label="Edit role task"
                             onClick={() => open('edit', row)}
-                          >
-                            <EditOutlinedIcon fontSize="small" /> Edit
-                          </button>
+                           data-grid-icon="true">
+                            <EditOutlinedIcon fontSize="small" /></button>
                           <button
                             type="button"
                             className="master-action delete"
@@ -383,9 +381,8 @@ export default function RoleTaskMasterComponent() {
                               if (window.confirm('Delete this role task?'))
                                 remove.mutate(rowId(row));
                             }}
-                          >
-                            <DeleteOutlineIcon fontSize="small" /> Delete
-                          </button>
+                           data-grid-icon="true">
+                            <DeleteOutlineIcon fontSize="small" /></button>
                         </div>
                       </td>
                     </tr>

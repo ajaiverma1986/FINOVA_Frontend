@@ -1,5 +1,5 @@
 .template-type-create-form .field small {
-  color: #64748b;
+  color: var(--color-text-secondary);
   display: block;
   margin-top: 0.35rem;
 }
@@ -10,9 +10,9 @@
 
 .template-type-preview {
   align-items: flex-start;
-  background: linear-gradient(135deg, #f0fdfa, #f8fafc);
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--color-hover), var(--color-surface-muted));
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   display: flex;
   gap: 1rem;
   justify-content: space-between;
@@ -25,24 +25,24 @@
 }
 
 .template-type-preview p {
-  color: #475569;
+  color: var(--color-text-secondary);
   margin: 0;
   max-width: 52rem;
 }
 
 .template-type-status {
-  background: #e2e8f0;
-  border-radius: 999px;
-  color: #475569;
+  background: var(--color-surface-muted);
+  border-radius: var(--border-radius-lg);
+  color: var(--color-text-secondary);
   flex: 0 0 auto;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: var(--typography-font-weight-bold);
   padding: 0.35rem 0.7rem;
 }
 
 .template-type-status.active {
-  background: #ccfbf1;
-  color: #0f766e;
+  background: var(--color-selected);
+  color: var(--color-primary);
 }
 
 @media (max-width: 640px) {

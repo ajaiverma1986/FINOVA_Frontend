@@ -328,18 +328,16 @@ export default function AppManagerComponent() {
                         title="View application"
                         aria-label="View application"
                         onClick={() => open('view', row)}
-                      >
-                        <VisibilityOutlinedIcon fontSize="small" /> View
-                      </button>
+                       data-grid-icon="true">
+                        <VisibilityOutlinedIcon fontSize="small" /></button>
                       <button
                         type="button"
                         className="master-action edit"
                         title="Edit application"
                         aria-label="Edit application"
                         onClick={() => open('edit', row)}
-                      >
-                        <EditOutlinedIcon fontSize="small" /> Edit
-                      </button>
+                       data-grid-icon="true">
+                        <EditOutlinedIcon fontSize="small" /></button>
                       <button
                         type="button"
                         className="master-action delete"
@@ -348,9 +346,8 @@ export default function AppManagerComponent() {
                         onClick={() => {
                           if (window.confirm('Delete this application?')) remove.mutate(rowId(row));
                         }}
-                      >
-                        <DeleteOutlineIcon fontSize="small" /> Delete
-                      </button>
+                       data-grid-icon="true">
+                        <DeleteOutlineIcon fontSize="small" /></button>
                     </div>
                   </td>
                 </tr>

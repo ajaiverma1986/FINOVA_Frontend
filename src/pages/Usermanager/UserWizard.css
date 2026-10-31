@@ -1,0 +1,112 @@
+.user-wizard-progress {
+  clear: both;
+  display: flex;
+  overflow-x: auto;
+  gap: var(--spacing-sm);
+  padding: 16px 0;
+  list-style: none;
+  border-bottom: 1px solid var(--color-border);
+}
+.master-data-page .user-wizard-progress [role='tab'] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--typography-font-size-sm);
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+}
+.master-data-page .user-wizard-progress [role='tab']:hover:not(:disabled) {
+  background: var(--color-selected);
+  border-color: var(--color-border);
+}
+.master-data-page .user-wizard-progress [role='tab'][aria-selected='true'] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: var(--typography-font-weight-semibold);
+}
+.master-data-page .user-wizard-progress [role='tab']:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.master-data-page .user-wizard-progress [role='tab']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.user-tab-number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-hover);
+  font-size: var(--typography-font-size-xs);
+}
+[aria-selected='true'] .user-tab-number {
+  background: var(--color-hover);
+  color: var(--color-text-primary);
+}
+.user-step-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.user-wizard-hint {
+  color: var(--color-text-secondary);
+  font-size: var(--typography-font-size-sm);
+}
+.address-save-actions {
+  margin-top: 24px;
+}
+.address-save-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.master-data-page .address-grid-actions .master-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  transition:
+    background-color 150ms,
+    box-shadow 150ms,
+    transform 150ms;
+}
+.master-data-page .address-grid-actions .edit:hover:not(:disabled) {
+  background: var(--color-selected);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.master-data-page .address-grid-actions .delete:hover:not(:disabled) {
+  background: var(--color-error-surface);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.master-data-page .address-grid-actions .master-action:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.master-data-page .address-grid-actions .master-action:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.master-data-page .address-grid-actions .master-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  .master-data-page .address-grid-actions .master-action {
+    transition: none;
+    transform: none;
+  }
+}

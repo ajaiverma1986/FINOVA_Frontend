@@ -1,0 +1,114 @@
+.dummy-service-transactions {
+  width: 100%;
+  min-width: 0;
+}
+.dummy-service-transactions .master-form {
+  width: 100%;
+  max-width: none;
+}
+.dummy-service-transactions .master-form-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0;
+}
+.dummy-service-transactions .transaction-submit-button {
+  margin-top: 18px;
+}
+.dummy-service-transactions .master-field,
+.dummy-service-transactions .master-field input,
+.dummy-service-transactions .master-field select,
+.dummy-service-transactions .master-field textarea {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.transaction-receipt-header {
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+}
+.transaction-receipt-header .eyebrow {
+  margin: 0 0 5px;
+  color: var(--color-primary);
+  font-weight: var(--typography-font-weight-bold);
+  letter-spacing: 0.16em;
+}
+.transaction-receipt-header h2 {
+  margin-bottom: 6px;
+}
+.transaction-receipt-header p:last-child {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+.transaction-receipt-details {
+  margin: 0;
+}
+.transaction-receipt-details > div {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) 1.5fr;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.transaction-receipt-details dt {
+  color: var(--color-text-secondary);
+}
+.transaction-receipt-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: var(--typography-font-weight-semibold);
+}
+@media (max-width: 900px) {
+  .dummy-service-transactions .master-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .dummy-service-transactions .master-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .transaction-receipt-details > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .transaction-receipt-dialog,
+  .transaction-receipt-dialog * {
+    visibility: visible !important;
+  }
+  .transaction-receipt-dialog {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .transaction-receipt-dialog .MuiBackdrop-root,
+  .transaction-receipt-actions,
+  .transaction-receipt-dialog .MuiDialogTitle-root {
+    display: none !important;
+  }
+  .transaction-receipt-dialog .MuiDialog-container {
+    display: block !important;
+    height: auto !important;
+  }
+  .transaction-receipt-dialog .MuiDialog-paper {
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+  .transaction-receipt-dialog .MuiDialogContent-root {
+    overflow: visible !important;
+    padding: 16mm !important;
+  }
+  .transaction-receipt-header,
+  .transaction-receipt-details > div {
+    break-inside: avoid;
+  }
+}
