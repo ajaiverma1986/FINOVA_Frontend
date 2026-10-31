@@ -5,6 +5,28 @@
 .transaction-report-page .master-form {
   max-width: none;
 }
+.transaction-report-page .master-form {
+  padding-top: 0.5rem;
+}
+
+.transaction-report-page .transaction-report-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.transaction-report-page .transaction-report-form-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.transaction-report-page .transaction-report-toggle {
+  min-width: 7.5rem;
+}
+
 .transaction-report-page .payin-search-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }

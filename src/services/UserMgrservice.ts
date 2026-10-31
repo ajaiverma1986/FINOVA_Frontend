@@ -237,6 +237,13 @@ export const UserMgrService = {
       `/UserMgr/GetUsersByParentId/${encodeURIComponent(String(parentId))}?userTypeId=${encodeURIComponent(String(userTypeId))}`,
       { method: 'GET', signal },
     ),
+  getParentCodeList: (userTypeID?: number, signal?: AbortSignal) =>
+    request(
+      userTypeID == null
+        ? '/UserMgr/GetParentCodeList'
+        : '/UserMgr/GetParentCodeList?userTypeID=' + encodeURIComponent(String(userTypeID)),
+      { method: 'GET', signal },
+    ),
   resetPassword: (body: ResetPasswordRequest, signal?: AbortSignal) =>
     request('/UserMgr/ResetPassword', { method: 'POST', body, signal, anonymous: true }),
   forgotPassword: (body: ForgotPasswordRequest, signal?: AbortSignal) =>

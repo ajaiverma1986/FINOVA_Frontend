@@ -14,3 +14,14 @@ it('posts the user report filters and abort signal to the documented endpoint', 
     signal,
   });
 });
+
+it('posts the user ledger report filters and abort signal to the documented endpoint', async () => {
+  const body = { FromDate: '2025-01-01T00:00:00', ToDate: '2025-01-31T23:59:59', UserMasterId: 42 };
+  const signal = new AbortController().signal;
+  await ReportService.getUserLedgerReport(body, signal);
+  expect(request).toHaveBeenCalledWith('/Report/GetUserLedgerReport', {
+    method: 'POST',
+    body,
+    signal,
+  });
+});

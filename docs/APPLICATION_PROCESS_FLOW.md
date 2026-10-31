@@ -367,7 +367,7 @@ The following is a **recommended review checklist**, not verified implementation
 | User workflow | [UserMasterComponent.tsx](../src/pages/Usermanager/UserMasterComponent.tsx), [userWizardData.ts](../src/pages/Usermanager/userWizardData.ts), [UserMgrservice.ts](../src/services/UserMgrservice.ts) |
 | Password recovery | [passwordRecovery.ts](../src/services/passwordRecovery.ts) |
 | Wallet and approvals | [WalletService.ts](../src/services/WalletService.ts), [CreatePayinRequestComponent.tsx](../src/pages/Wallet/CreatePayinRequestComponent.tsx), [PayinRequestListComponent.tsx](../src/pages/Wallet/PayinRequestListComponent.tsx), [payinRequests.ts](../src/pages/Wallet/payinRequests.ts) |
-| Transfer report | [TransferRequestListComponent.tsx](../src/pages/Repost/TransferRequestListComponent.tsx) |
+| Transfer report | [TransferRequestListComponent.tsx](../src/pages/Reports/TransferRequestListComponent.tsx) |
 | Transaction/report contracts | [TransactionService.ts](../src/services/TransactionService.ts), [ReportService.ts](../src/services/ReportService.ts), [ReportmanService.ts](../src/services/ReportmanService.ts) |
 | Organizations and notifications | [OrgMgrService.ts](../src/services/OrgMgrService.ts), [NotificationService.ts](../src/services/NotificationService.ts) |
 | Generated/legacy operations | [operations.ts](../src/services/operations.ts), [catalog.ts](../src/services/catalog.ts) |

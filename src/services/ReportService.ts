@@ -42,9 +42,17 @@ export interface UserMasterListReportRequest {
   SortDirection?: string | null;
 }
 
+export interface UserLedgerReportRequest {
+  FromDate?: string | null;
+  ToDate?: string | null;
+  UserMasterId?: number | null;
+}
+
 export const ReportService = {
   getUserMasterListReport: (body: UserMasterListReportRequest, signal?: AbortSignal) =>
     request('/Report/GetUserMasterListReport', { method: 'POST', body, signal }),
+  getUserLedgerReport: (body: UserLedgerReportRequest, signal?: AbortSignal) =>
+    request('/Report/GetUserLedgerReport', { method: 'POST', body, signal }),
   transactionDetailsReport: (body: TransactionReportRequest, signal?: AbortSignal) =>
     request('/Report/TransactionDetailsReport', { method: 'POST', body, signal }),
   adminDashboard: (body: AdminDashboardRequest = {}, signal?: AbortSignal) =>
